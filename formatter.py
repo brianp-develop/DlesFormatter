@@ -226,6 +226,38 @@ def process_puzzle_results(input_text: str) -> str:
     return output
 
 
+def check_puzzle_complete(lines: List[str]) -> bool:
+    """
+    Check if accumulated lines contain a complete puzzle by testing
+    against each formatter's end_marker_pattern.
+
+    Special handling for Wordle: completes after either all-green row
+    or 6 emoji grid rows (max attempts).
+
+    Args:
+        lines: List of input lines accumulated so far
+
+    Returns:
+        True if any line matches any formatter's end marker pattern
+    """
+    from puzzle_formatters import ALL_FORMATTERS
+
+    # Check individual lines for end markers (URLs, all-green Wordle)
+    for line in lines:
+        for formatter in ALL_FORMATTERS:
+            if formatter.end_marker_pattern and re.search(formatter.end_marker_pattern, line):
+                return True
+
+    # Special case: Wordle with 6 emoji rows (all attempts used, no solve)
+    # Count lines that contain Wordle emoji squares
+    wordle_emoji_pattern = r'^[🟩🟨⬛⬜]{5}$'
+    emoji_rows = [line for line in lines if re.match(wordle_emoji_pattern, line.strip())]
+    if len(emoji_rows) >= 6:
+        return True  # All 6 attempts used
+
+    return False
+
+
 def interactive_mode():
     """
     Interactive mode: Accept multiple pastes, keep running until user exits.
@@ -235,8 +267,8 @@ def interactive_mode():
     """
     print("=== Puzzle Results Formatter (Interactive Mode) ===")
     print("Paste your puzzle results below.")
-    print("You can paste multiple times as you complete puzzles.")
-    print("Press Enter on empty input when done, or Ctrl+C to exit.")
+    print("The script will detect when each puzzle is complete.")
+    print("Press Ctrl+C when all puzzles are entered.")
     print()
 
     all_input_lines = []
@@ -246,31 +278,35 @@ def interactive_mode():
             print("Paste puzzle results (or press Enter if done):")
             lines = []
 
-            # Read lines until we get an empty line or EOF
+            # Read lines until we detect a complete puzzle or user signals done
             while True:
                 try:
                     line = input()
+
+                    # First line empty = user signaling done
                     if not line.strip() and not lines:
-                        # Empty input on first line = user is done
                         if all_input_lines:
-                            # Process what we have
                             raise EOFError()
                         else:
-                            # No input yet, continue waiting
                             continue
+
+                    # Add line (preserve blank lines for formatting)
                     lines.append(line)
 
-                    # Check if this looks like end of a puzzle (blank line after content)
-                    if not line.strip() and lines:
-                        # End of this paste
+                    # Check if we just received a puzzle end marker
+                    if check_puzzle_complete(lines):
+                        # Found end marker, this paste is complete
+                        print(f"  -> Captured {len(lines)} lines")
                         break
+
+                    # Blank line without end marker = mid-puzzle, continue
+                    # (This preserves blank lines in puzzles like Framed)
+
                 except EOFError:
-                    # Ctrl+D or end of input
                     raise
 
             if lines:
                 all_input_lines.extend(lines)
-                print(f"  -> Captured {len(lines)} lines")
                 print()
 
     except (EOFError, KeyboardInterrupt):
