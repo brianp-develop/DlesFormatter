@@ -246,9 +246,83 @@ Then just run:
 puzzles
 ```
 
-### Method 4: Windows Terminal Custom Command
+### Method 4: Windows Terminal Custom Profile (Recommended)
 
-In Windows Terminal settings, add a custom profile or shortcut.
+Create a dedicated Windows Terminal profile that launches the formatter directly with optimal settings.
+
+#### Step-by-Step Instructions (GUI Method - Recommended)
+
+1. Open Windows Terminal settings (Ctrl+, or click dropdown > Settings)
+2. Click "Add a new profile" or the **"+ New profile"** button
+3. Click "Create a new empty profile"
+4. Configure the profile settings:
+   - **Name**: "Puzzle Formatter" (or your preferred name)
+   - **Command line**: `python C:\Users\<username>\source\DlesFormatter\formatter.py`
+   - **Starting directory**: `C:\Users\<username>\source\DlesFormatter`
+   - **Icon**: 🧩 (optional - paste the emoji or browse for an icon)
+5. Scroll down to **Advanced** settings
+6. Find "Warn when pasting multiple lines" and **toggle it OFF**
+   - This is the equivalent of `"multiLinePasteWarning": false` in JSON
+   - **Critical for daily use**: Without this, Windows Terminal shows a warning every time you paste puzzle results
+7. Click "Save" in the bottom-right
+8. Your new profile will appear in the dropdown menu!
+
+#### Alternative: Manual JSON Method (Advanced)
+
+If you prefer to edit the JSON directly:
+
+1. Open Windows Terminal settings (Ctrl+,)
+2. Click "Open JSON file" button in bottom-left
+3. Navigate to the `"profiles"` section, then `"list"` array
+4. Add the following profile configuration:
+
+```json
+{
+    "name": "Puzzle Formatter",
+    "commandline": "python C:\\Users\\<username>\\source\\DlesFormatter\\formatter.py",
+    "startingDirectory": "C:\\Users\\<username>\\source\\DlesFormatter",
+    "icon": "🧩",
+    "multiLinePasteWarning": false,
+    "colorScheme": "Campbell",
+    "font": {
+        "face": "Cascadia Mono",
+        "size": 12
+    }
+}
+```
+
+**Replace `<username>` with your Windows username and adjust the path to match your installation directory.**
+
+#### Key Settings Explained
+
+- **`commandline`**: Runs the formatter directly when profile launches
+  - Use double backslashes `\\` in JSON
+  - Adjust path to match your installation directory
+- **`multiLinePasteWarning: false`**: **Important!** Disables the warning when pasting multiple lines
+  - Without this, Windows Terminal shows a warning every time you paste puzzle results
+  - Makes the workflow much smoother for daily use
+- **`startingDirectory`**: Sets the working directory to the project folder
+- **`icon`**: Optional - adds 🧩 emoji to profile tab for easy identification
+- **`font`**: Optional - ensures emoji display correctly
+
+#### Using the Profile
+
+- Click the dropdown arrow (˅) next to the tab bar
+- Select "Puzzle Formatter" from the list
+- Or set as default profile in settings if you use it daily
+
+#### Benefits
+
+- **One-click access**: No need to navigate to directory or type commands
+- **No paste warnings**: Seamless pasting experience with `multiLinePasteWarning: false`
+- **Dedicated terminal**: Clean, purpose-built environment for puzzle formatting
+- **Professional setup**: Shows in your profile list with custom icon
+
+#### Location of settings.json
+
+If you need to edit the JSON manually:
+- Path: `%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json`
+- Or: Windows Terminal → Settings → Open JSON file (button in bottom-left)
 
 ## Verification on Windows
 
