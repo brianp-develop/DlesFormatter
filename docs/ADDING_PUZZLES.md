@@ -2,6 +2,8 @@
 
 This guide walks you through adding support for a new puzzle type. The process takes about 5-15 minutes per puzzle.
 
+**Background reading:** For context on the system design, see [ARCHITECTURE.md](ARCHITECTURE.md).
+
 ## Prerequisites
 
 - Basic Python knowledge

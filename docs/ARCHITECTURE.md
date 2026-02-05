@@ -176,13 +176,13 @@ Formatted Result → Clipboard
 - Stays running, accepts multiple pastes
 - User pastes as they complete puzzles throughout the day
 - Accumulates all input, processes on exit
-- Auto-copies formatted results to clipboard
+- Displays formatted results for copying
 - Good for incremental puzzle completion
 
 **Implementation:**
 - Runs directly when script is executed (`python formatter.py`)
-- Uses the same core processing pipeline
-- Auto-copy to clipboard using `pyperclip`
+- Uses the core processing pipeline
+- Results displayed for manual copying
 
 ## Error Handling
 
@@ -203,12 +203,11 @@ Formatted Result → Clipboard
 2. **Testable**: Each formatter is independent
 3. **Maintainable**: Clear responsibilities per module
 4. **Flexible input**: Handles missing puzzles, any order
-5. **User-friendly**: Two modes for different workflows
+5. **User-friendly**: Interactive workflow for daily use
 
 ### Trade-offs
 1. **More files**: Each puzzle needs its own file (worth it for maintainability)
 2. **Some duplication**: Each formatter has similar structure (but customizable)
-3. **Dependency**: Requires `pyperclip` for auto-copy to clipboard feature
 
 ## Future Extensibility
 
@@ -219,6 +218,8 @@ The architecture supports future enhancements:
 - **Output formats**: Could support Slack, Discord, etc. with different formatters
 - **Validation**: Could add puzzle result validation (score ranges, grid patterns)
 - **History tracking**: Could save results to file with dates
+
+**Want to add a new puzzle?** See [ADDING_PUZZLES.md](ADDING_PUZZLES.md) for a step-by-step guide.
 
 ## Testing Strategy
 

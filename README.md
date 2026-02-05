@@ -7,7 +7,6 @@ A Python tool that collates and formats daily puzzle results (Wordle, Framed, Qu
 - **Flexible Input**: Paste puzzle results in any order
 - **Missing Puzzle Handling**: Works with any combination of supported puzzles
 - **Auto-Reordering**: Outputs puzzles in preferred order regardless of input order
-- **Auto-Copy to Clipboard**: Formatted results automatically copied for easy sharing
 - **Interactive Workflow**: Paste puzzles as you complete them throughout the day
 - **Extensible**: Easy to add new puzzle types (see [docs/ADDING_PUZZLES.md](docs/ADDING_PUZZLES.md))
 - **Windows Compatible**: Fully tested and optimized for Windows (see [WINDOWS_COMPATIBILITY.md](WINDOWS_COMPATIBILITY.md))
@@ -27,19 +26,67 @@ A Python tool that collates and formats daily puzzle results (Wordle, Framed, Qu
 - Python 3.7 or higher
 - pip (Python package installer)
 
-### Setup
+### Quick Setup
 
-1. **Clone or download this repository**
+1. **Check Python installation**
+   ```bash
+   python --version
+   # or try: python3 --version
+   # or try: py --version
+   ```
+   Need to install Python? See [detailed setup instructions](#detailed-setup) below.
 
 2. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
+   If `pip` doesn't work, try:
+   ```bash
+   python -m pip install -r requirements.txt
+   ```
 
-3. **Ready to use!**
+3. **Verify installation**
    ```bash
    python formatter.py
    ```
+   You should see the interactive mode prompt. Press Ctrl+C to exit.
+
+### Detailed Setup
+
+#### Installing Python
+
+**Windows:**
+- Download from [python.org](https://www.python.org/downloads/)
+- **Important:** Check "Add Python to PATH" during installation
+- Restart your terminal after installation
+
+**Mac:**
+```bash
+brew install python3
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+sudo apt-get update
+sudo apt-get install python3 python3-pip
+```
+
+#### Creating Shortcuts
+
+**Windows batch file:**
+Create `puzzle_formatter.bat`:
+```batch
+@echo off
+cd C:\path\to\DlesFormatter
+python formatter.py
+pause
+```
+
+**Mac/Linux alias:**
+Add to `~/.bashrc` or `~/.zshrc`:
+```bash
+alias puzzles='cd /path/to/DlesFormatter && python formatter.py'
+```
 
 ## Usage
 
@@ -55,8 +102,8 @@ python formatter.py
 2. Paste puzzle results (one at a time or all together)
 3. Script automatically detects when each puzzle is complete
 4. Press Ctrl+C when all puzzles are entered
-5. Formatted results are displayed and **automatically copied to clipboard**
-6. Paste into Teams!
+5. Formatted results are displayed
+6. Copy and paste into Teams!
 
 **Note:** The script detects puzzle completion automatically by recognizing end markers (URLs for most puzzles, all-green row or 6 attempts for Wordle). Blank lines within puzzles are preserved.
 
@@ -115,9 +162,14 @@ Edit `config.json` to customize puzzle ordering:
 
 ## Documentation
 
-- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System design and how it works
-- **[ADDING_PUZZLES.md](docs/ADDING_PUZZLES.md)** - Tutorial for adding new puzzle types
-- **[EXAMPLES.md](docs/EXAMPLES.md)** - Input/output examples for all puzzles
+Quick links to help you get started:
+
+- **New to the project?** Start here with this README
+- **Windows user?** See [WINDOWS_COMPATIBILITY.md](WINDOWS_COMPATIBILITY.md) for setup and troubleshooting
+- **Need a quick reference?** Check [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for daily usage
+- **Want to understand how it works?** Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- **Adding a new puzzle type?** Follow [docs/ADDING_PUZZLES.md](docs/ADDING_PUZZLES.md)
+- **Need usage examples?** See [docs/EXAMPLES.md](docs/EXAMPLES.md)
 
 ## Troubleshooting
 
@@ -127,11 +179,6 @@ See **[WINDOWS_COMPATIBILITY.md](WINDOWS_COMPATIBILITY.md)** for complete Window
 - Python installation problems
 - Terminal recommendations
 - Batch file setup
-
-### Clipboard not working
-- **Windows**: Works out of the box with pyperclip (see [WINDOWS_COMPATIBILITY.md](WINDOWS_COMPATIBILITY.md) if issues)
-- **Linux**: Install `xclip` or `xsel`: `sudo apt-get install xclip`
-- **Mac**: Should work out of the box
 
 ### Unicode/emoji display issues
 - **Windows**: Use Windows Terminal or PowerShell (not cmd.exe) - see [WINDOWS_COMPATIBILITY.md](WINDOWS_COMPATIBILITY.md)

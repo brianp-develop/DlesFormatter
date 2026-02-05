@@ -8,7 +8,7 @@ python formatter.py
 ```
 - Paste puzzle results as you complete them
 - Press Ctrl+C when done
-- Results auto-copied to clipboard
+- Copy results and paste into Teams
 
 ## Supported Puzzles
 
@@ -61,16 +61,11 @@ python3 formatter.py
 py formatter.py
 ```
 
-### Missing pyperclip
+### Missing dependencies
 ```bash
-pip install pyperclip
+pip install -r requirements.txt
 # or
-python -m pip install pyperclip
-```
-
-### Clipboard not working (Linux)
-```bash
-sudo apt-get install xclip
+python -m pip install -r requirements.txt
 ```
 
 ### Emoji display issues
@@ -98,11 +93,11 @@ Edit `config.json`:
 
 ## Getting More Help
 
-- **Installation**: See [SETUP.md](SETUP.md)
+- **Installation**: See [README.md](README.md#installation)
+- **Windows setup**: See [WINDOWS_COMPATIBILITY.md](WINDOWS_COMPATIBILITY.md)
 - **Usage examples**: See [docs/EXAMPLES.md](docs/EXAMPLES.md)
 - **Adding puzzles**: See [docs/ADDING_PUZZLES.md](docs/ADDING_PUZZLES.md)
 - **How it works**: See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-- **Overview**: See [README.md](README.md)
 
 ## Typical Workflow
 
@@ -132,7 +127,6 @@ Morning ────────────────────────
 2. **Create alias**: `alias puzzles='python /path/to/formatter.py'`
 3. **Missing puzzles OK**: Only format what you completed today
 4. **Order doesn't matter**: Paste in any order, output always consistent
-5. **Auto-copy**: Formatted results automatically copied to clipboard - just paste!
 
 ---
 

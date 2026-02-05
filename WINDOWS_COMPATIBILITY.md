@@ -29,6 +29,40 @@ This uses Python's `reconfigure()` method (Python 3.7+) which safely changes the
 
 **Note:** The puzzle formatter modules (base.py, framed.py, quolture.py, wordle.py) don't need this fix because they don't output to stdout - they only process strings.
 
+## Quick Start on Windows
+
+### 1. Install Python
+
+Check if Python is installed:
+```powershell
+python --version
+```
+
+If not installed:
+1. Download from [python.org](https://www.python.org/downloads/)
+2. **IMPORTANT:** Check "Add Python to PATH" during installation
+3. Restart your terminal after installation
+
+### 2. Install Dependencies
+
+From the DlesFormatter directory:
+```powershell
+python -m pip install -r requirements.txt
+```
+
+If that doesn't work, try:
+```powershell
+py -m pip install -r requirements.txt
+```
+
+### 3. Run the Formatter
+
+```powershell
+python formatter.py
+```
+
+Press Ctrl+C when done entering puzzles. Results will be displayed for you to copy.
+
 ## Windows-Specific Recommendations
 
 ### 1. Use Modern Terminal
@@ -143,22 +177,22 @@ py -m pip install -r requirements.txt
 - Download from python.org
 - Check "Add Python to PATH" during installation
 
-### Issue 4: Clipboard Auto-Copy Not Working
+### Issue 4: Dependencies Not Installed
 
 **Error:**
 ```
-Note: Could not copy to clipboard
+No module named 'pyperclip'
 ```
 
 **Solution:**
-✅ pyperclip should work out of the box on Windows for the auto-copy feature.
+```powershell
+python -m pip install -r requirements.txt
+```
 
-**If still having issues:**
-- Ensure pyperclip is installed: `python -m pip install pyperclip`
-- Check clipboard isn't locked by another application
-- Try running script as administrator (rare cases)
-
-**Note:** The formatter automatically copies formatted results to your clipboard in interactive mode for easy pasting into Teams.
+Or directly:
+```powershell
+python -m pip install pyperclip
+```
 
 ### Issue 5: Permission Denied
 
@@ -258,10 +292,6 @@ The code uses `pathlib.Path` which automatically handles Windows path separators
 
 Python automatically handles Windows line endings (CRLF) vs Unix (LF).
 
-### Clipboard Integration
-
-`pyperclip` works natively on Windows without additional dependencies, enabling the auto-copy feature in interactive mode.
-
 ## Performance on Windows
 
 The formatter runs efficiently on Windows:
@@ -307,6 +337,5 @@ python tests\test_formatter.py
 ✅ **Emoji and Unicode characters display properly**
 ✅ **Works with Windows Terminal, PowerShell, and VS Code**
 ✅ **All tests pass on Windows**
-✅ **Native clipboard integration**
 
 The Puzzle Results Formatter is production-ready for Windows! 🎉
