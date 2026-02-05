@@ -14,7 +14,7 @@ Features:
     - Auto-copies formatted results to clipboard
     - Supports multiple puzzles in any order
 
-Author: Created for daily puzzle result sharing
+Author: Created for daily puzzle result sharing 
 """
 
 import json
@@ -236,57 +236,104 @@ def process_puzzle_results(input_text: str) -> str:
     return output
 
 
-def check_puzzle_complete(lines: List[str]) -> bool:
+def _is_wordle_complete(lines: List[str]) -> bool:
     """
-    Check if accumulated lines contain a complete puzzle by testing
-    against each formatter's end_marker_pattern.
+    Check if a Wordle puzzle is complete (6 emoji rows = max attempts used).
 
-    Special handling for Wordle: completes after either all-green row
-    or 6 emoji grid rows (max attempts).
+    Wordle allows a maximum of 6 guesses. If the user pastes 6 rows of emoji
+    squares (🟩🟨⬛⬜), the puzzle is complete even without an all-green row,
+    meaning they failed to solve it within the attempt limit.
+
+    This complements the end_marker_pattern check (which detects all-green rows)
+    to handle both successful solves and failed attempts.
 
     Args:
         lines: List of input lines accumulated so far
 
     Returns:
-        True if any line matches any formatter's end marker pattern
+        True if 6 or more Wordle emoji rows are present
+    """
+    wordle_emoji_pattern = r'^[🟩🟨⬛⬜]{5}$'
+    emoji_rows = [line for line in lines if re.match(wordle_emoji_pattern, line.strip())]
+    return len(emoji_rows) >= 6
+
+
+def _is_connections_complete(lines: List[str]) -> bool:
+    """
+    Check if a Connections puzzle is complete using solid/mixed row logic.
+
+    Connections puzzles involve grouping 16 words into 4 categories. Each correct
+    category shows as a row of 4 same-colored emojis (solid row). Wrong attempts
+    show mixed colors (mixed row).
+
+    Game completion rules:
+    - Solved successfully: 4 solid rows (perfect categories) + 0-3 mixed rows (mistakes)
+    - Failed to solve: 4+ mixed rows (too many mistakes) + 0-2 solid rows
+
+    This detection cannot use a simple end_marker_pattern because there's no URL
+    and completion depends on counting row types, not matching a single pattern.
+
+    Args:
+        lines: List of input lines accumulated so far
+
+    Returns:
+        True if puzzle shows completion pattern (4 solid or 4 mixed rows)
+    """
+    connections_emoji_pattern = r'^[🟦🟪🟩🟨]{4}$'
+    connections_rows = [line for line in lines if re.match(connections_emoji_pattern, line.strip())]
+
+    if len(connections_rows) < 4:
+        return False
+
+    # Count solid rows (all 4 emojis same color = correct category)
+    # Count mixed rows (different colors = wrong attempt)
+    solid_rows = 0
+    mixed_rows = 0
+
+    for row in connections_rows:
+        emojis = list(row.strip())
+        if len(set(emojis)) == 1:  # All same emoji = solid row
+            solid_rows += 1
+        else:
+            mixed_rows += 1
+
+    # Complete if: 4 solid + (0-3 mixed), OR 4 mixed + (0-2 solid)
+    return (solid_rows >= 4 and mixed_rows <= 3) or (mixed_rows >= 4 and solid_rows <= 2)
+
+
+def check_puzzle_complete(lines: List[str]) -> bool:
+    """
+    Check if accumulated lines contain a complete puzzle.
+
+    Detection strategies:
+    1. Generic URL-based: Most puzzles end with a URL (Framed, Quolture)
+    2. Pattern-based: Some use special markers (Wordle all-green row)
+    3. Special cases: Complex logic for puzzles without clear end markers
+
+    Args:
+        lines: List of input lines accumulated so far
+
+    Returns:
+        True if puzzle completion is detected
     """
     from puzzle_formatters import ALL_FORMATTERS
 
-    # Check individual lines for end markers (URLs, all-green Wordle)
+    # Check generic end_marker_patterns (URLs, all-green Wordle row)
+    # This handles: Framed, Framed One Frame, Quolture, and solved Wordle
     for line in lines:
         for formatter in ALL_FORMATTERS:
             if formatter.end_marker_pattern and re.search(formatter.end_marker_pattern, line):
                 return True
 
-    # Special case: Wordle with 6 emoji rows (all attempts used, no solve)
-    # Count lines that contain Wordle emoji squares
-    wordle_emoji_pattern = r'^[🟩🟨⬛⬜]{5}$'
-    emoji_rows = [line for line in lines if re.match(wordle_emoji_pattern, line.strip())]
-    if len(emoji_rows) >= 6:
-        return True  # All 6 attempts used
+    # Check Wordle special case: 6 attempts used (failed to solve)
+    # Needed because unsolved Wordle has no all-green row to match
+    if _is_wordle_complete(lines):
+        return True
 
-    # Special case: Connections puzzle completion detection
-    # A puzzle is complete when EITHER:
-    # 1. 4 solid color rows (all 4 emojis same color) with 0-3 mixed rows, OR
-    # 2. 4 mixed color rows (different colors) with 0-2 solid rows
-    connections_emoji_pattern = r'^[🟦🟪🟩🟨]{4}$'
-    connections_rows = [line for line in lines if re.match(connections_emoji_pattern, line.strip())]
-
-    if len(connections_rows) >= 4:
-        # Count solid rows (all 4 emojis are the same)
-        solid_rows = 0
-        mixed_rows = 0
-
-        for row in connections_rows:
-            emojis = list(row.strip())
-            if len(set(emojis)) == 1:  # All same emoji
-                solid_rows += 1
-            else:
-                mixed_rows += 1
-
-        # Complete if: 4 solid + (0-3 mixed), OR 4 mixed + (0-2 solid)
-        if (solid_rows >= 4 and mixed_rows <= 3) or (mixed_rows >= 4 and solid_rows <= 2):
-            return True
+    # Check Connections special case: solid/mixed row counting logic
+    # Needed because completion depends on row type analysis, not a single pattern
+    if _is_connections_complete(lines):
+        return True
 
     return False
 
