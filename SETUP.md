@@ -54,13 +54,13 @@ This installs `pyperclip` for clipboard functionality.
 
 ### Quick Test
 
-Run the formatter with help flag:
+Run the formatter:
 
 ```bash
-python formatter.py --help
+python formatter.py
 ```
 
-You should see usage information.
+You should see the interactive mode prompt.
 
 ### Run Tests
 
@@ -72,7 +72,12 @@ You should see all tests passing.
 
 ### Test with Sample Data
 
-1. Copy this sample puzzle result:
+1. Run the formatter:
+```bash
+python formatter.py
+```
+
+2. Paste this sample puzzle result:
 ```
 Framed #1427
 🎥 🟥 🟥 🟥 🟥 🟥 🟥
@@ -80,12 +85,9 @@ Framed #1427
 https://framed.wtf
 ```
 
-2. Run the formatter in clipboard mode:
-```bash
-python formatter.py -c
-```
+3. Press Ctrl+C to process
 
-3. Expected output:
+4. Expected output (auto-copied to clipboard):
 ```
 Framed #1427🎥 🟥 🟥 🟥 🟥 🟥 🟥
 ```
@@ -144,46 +146,28 @@ chmod +x formatter.py
 
 ## First Run
 
-### Interactive Mode (Recommended)
+### Interactive Mode
 
 ```bash
 python formatter.py
 ```
 
 Follow the prompts:
-1. Paste puzzle results
-2. Press Enter on empty input when done
-3. Formatted results displayed and copied to clipboard
-4. Paste into Teams!
-
-### Clipboard Mode
-
-```bash
-python formatter.py -c
-```
-
-1. Copy puzzle results first
-2. Run the command
-3. Formatted results auto-copied back
+1. Paste puzzle results (one at a time or all together)
+2. Press Ctrl+C when done
+3. Formatted results displayed and auto-copied to clipboard
 4. Paste into Teams!
 
 ## Daily Usage
 
-### Option 1: Keep Script Running (Interactive)
 ```bash
-# Morning: start the script
+# Start the script
 python formatter.py
 
-# Throughout the day: paste results as you complete puzzles
-# Press Enter on empty input when done
-```
-
-### Option 2: One-Shot Processing (Clipboard)
-```bash
-# Copy all puzzle results
-# Run formatter
-python formatter.py -c
-# Paste into Teams
+# Paste puzzle results as you complete them throughout the day
+# Press Ctrl+C when done
+# Results are automatically copied to clipboard
+# Paste into Teams!
 ```
 
 ## Making it Even Easier
@@ -192,7 +176,7 @@ python formatter.py -c
 
 Add to `~/.bashrc` or `~/.zshrc`:
 ```bash
-alias puzzles='cd /path/to/DlesFormatter && python formatter.py -c'
+alias puzzles='cd /path/to/DlesFormatter && python formatter.py'
 ```
 
 Then just run:
@@ -206,7 +190,7 @@ puzzles
 ```batch
 @echo off
 cd C:\Users\bcpierson\source\DlesFormatter
-python formatter.py -c
+python formatter.py
 pause
 ```
 
@@ -234,7 +218,7 @@ sudo ln -s /path/to/DlesFormatter/formatter.py /usr/local/bin/puzzles
 
 4. Run from anywhere:
 ```bash
-puzzles -c
+puzzles
 ```
 
 ## Next Steps

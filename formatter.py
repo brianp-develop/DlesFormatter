@@ -6,17 +6,17 @@ Collates and formats daily puzzle results (Wordle, Framed, Quolture, etc.)
 into a standardized format for sharing in Teams chat.
 
 Usage:
-    # Interactive mode (default) - paste multiple times, keeps running
     python formatter.py
 
-    # Clipboard mode - one-shot processing
-    python formatter.py --clipboard
-    python formatter.py -c
+Features:
+    - Interactive mode: paste puzzle results as you complete them
+    - Auto-detects puzzle completion
+    - Auto-copies formatted results to clipboard
+    - Supports multiple puzzles in any order
 
 Author: Created for daily puzzle result sharing
 """
 
-import argparse
 import json
 import re
 import sys
@@ -367,81 +367,11 @@ def interactive_mode():
         print("\nPaste into Teams and share your results!")
 
 
-def clipboard_mode():
-    """
-    Clipboard mode: Read from clipboard, format, copy back to clipboard.
-
-    One-shot processing for quick daily use.
-    """
-    print("=== Puzzle Results Formatter (Clipboard Mode) ===")
-
-    # Read from clipboard
-    try:
-        input_text = pyperclip.paste()
-    except Exception as e:
-        print(f"Error: Could not read from clipboard: {e}")
-        sys.exit(1)
-
-    if not input_text.strip():
-        print("Error: Clipboard is empty")
-        sys.exit(1)
-
-    print("Processing puzzle results from clipboard...")
-
-    # Process the input
-    output = process_puzzle_results(input_text)
-
-    # Display result
-    print("\n=== Formatted Results ===")
-    print(output)
-    print()
-
-    # Copy back to clipboard
-    try:
-        pyperclip.copy(output)
-        print("✓ Results copied to clipboard!")
-    except Exception as e:
-        print(f"Note: Could not copy to clipboard: {e}")
-
-    print("\nPaste into Teams and share your results!")
-
-
 def main():
     """
-    Main entry point: Parse arguments and run appropriate mode.
+    Main entry point: Run interactive mode with auto-copy to clipboard.
     """
-    parser = argparse.ArgumentParser(
-        description="Format daily puzzle results for sharing in Teams chat",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Interactive mode (default) - paste as you go
-  python formatter.py
-
-  # Clipboard mode - one-shot processing
-  python formatter.py --clipboard
-  python formatter.py -c
-
-Supported Puzzles:
-  - Framed
-  - Framed One Frame Challenge
-  - Quolture
-  - Wordle
-        """
-    )
-
-    parser.add_argument(
-        '-c', '--clipboard',
-        action='store_true',
-        help='Clipboard mode: read from clipboard, format, copy back'
-    )
-
-    args = parser.parse_args()
-
-    if args.clipboard:
-        clipboard_mode()
-    else:
-        interactive_mode()
+    interactive_mode()
 
 
 if __name__ == '__main__':

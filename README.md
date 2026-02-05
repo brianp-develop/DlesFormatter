@@ -7,7 +7,8 @@ A Python tool that collates and formats daily puzzle results (Wordle, Framed, Qu
 - **Flexible Input**: Paste puzzle results in any order
 - **Missing Puzzle Handling**: Works with any combination of supported puzzles
 - **Auto-Reordering**: Outputs puzzles in preferred order regardless of input order
-- **Two Modes**: Interactive (default) or clipboard-based workflow
+- **Auto-Copy to Clipboard**: Formatted results automatically copied for easy sharing
+- **Interactive Workflow**: Paste puzzles as you complete them throughout the day
 - **Extensible**: Easy to add new puzzle types (see [docs/ADDING_PUZZLES.md](docs/ADDING_PUZZLES.md))
 - **Windows Compatible**: Fully tested and optimized for Windows (see [WINDOWS_COMPATIBILITY.md](WINDOWS_COMPATIBILITY.md))
 
@@ -35,14 +36,14 @@ A Python tool that collates and formats daily puzzle results (Wordle, Framed, Qu
    pip install -r requirements.txt
    ```
 
-3. **Verify installation**
+3. **Ready to use!**
    ```bash
-   python formatter.py --help
+   python formatter.py
    ```
 
 ## Usage
 
-### Interactive Mode (Recommended)
+### Interactive Mode
 
 Perfect for pasting results throughout the day as you complete puzzles:
 
@@ -54,25 +55,10 @@ python formatter.py
 2. Paste puzzle results (one at a time or all together)
 3. Script automatically detects when each puzzle is complete
 4. Press Ctrl+C when all puzzles are entered
-5. Formatted results are displayed and copied to clipboard
+5. Formatted results are displayed and **automatically copied to clipboard**
 6. Paste into Teams!
 
 **Note:** The script detects puzzle completion automatically by recognizing end markers (URLs for most puzzles, all-green row or 6 attempts for Wordle). Blank lines within puzzles are preserved.
-
-### Clipboard Mode
-
-Quick one-shot processing:
-
-```bash
-python formatter.py --clipboard
-# or
-python formatter.py -c
-```
-
-1. Copy all puzzle results to clipboard
-2. Run the script
-3. Formatted results auto-copied back to clipboard
-4. Paste into Teams!
 
 ## Example
 

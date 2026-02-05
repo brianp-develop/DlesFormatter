@@ -2,21 +2,13 @@
 
 ## Daily Usage
 
-### Option 1: Interactive Mode (Default)
+### Interactive Mode
 ```bash
 python formatter.py
 ```
 - Paste puzzle results as you complete them
-- Press Enter on empty input when done
+- Press Ctrl+C when done
 - Results auto-copied to clipboard
-
-### Option 2: Clipboard Mode
-```bash
-python formatter.py -c
-```
-- Copy all results first
-- Run command
-- Formatted results auto-copied back
 
 ## Supported Puzzles
 
@@ -50,20 +42,14 @@ Wordle 1,692 4/6
 ## Common Commands
 
 ```bash
-# Get help
-python formatter.py --help
+# Run formatter
+python formatter.py
 
 # Verify installation
 python verify_structure.py
 
 # Run tests
 python tests/test_formatter.py
-
-# Interactive mode
-python formatter.py
-
-# Clipboard mode
-python formatter.py -c
 ```
 
 ## Troubleshooting Quick Fixes
@@ -143,10 +129,10 @@ Morning ────────────────────────
 ## Pro Tips
 
 1. **Keep it running**: Start `formatter.py` in morning, paste as you go
-2. **Create alias**: `alias puzzles='python /path/to/formatter.py -c'`
+2. **Create alias**: `alias puzzles='python /path/to/formatter.py'`
 3. **Missing puzzles OK**: Only format what you completed today
 4. **Order doesn't matter**: Paste in any order, output always consistent
-5. **Batch processing**: Copy all at end of day, use `-c` flag
+5. **Auto-copy**: Formatted results automatically copied to clipboard - just paste!
 
 ---
 

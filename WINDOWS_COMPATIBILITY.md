@@ -143,20 +143,22 @@ py -m pip install -r requirements.txt
 - Download from python.org
 - Check "Add Python to PATH" during installation
 
-### Issue 4: Clipboard Not Working
+### Issue 4: Clipboard Auto-Copy Not Working
 
 **Error:**
 ```
-Error: Could not copy to clipboard
+Note: Could not copy to clipboard
 ```
 
 **Solution:**
-✅ pyperclip should work out of the box on Windows.
+✅ pyperclip should work out of the box on Windows for the auto-copy feature.
 
 **If still having issues:**
 - Ensure pyperclip is installed: `python -m pip install pyperclip`
 - Check clipboard isn't locked by another application
 - Try running script as administrator (rare cases)
+
+**Note:** The formatter automatically copies formatted results to your clipboard in interactive mode for easy pasting into Teams.
 
 ### Issue 5: Permission Denied
 
@@ -178,11 +180,8 @@ PermissionError: [WinError 5] Access is denied
 # Navigate to project directory
 cd C:\Users\<username>\source\DlesFormatter
 
-# Run in interactive mode
+# Run the formatter
 python formatter.py
-
-# Run in clipboard mode
-python formatter.py -c
 ```
 
 ### Method 2: Create Batch File
@@ -192,7 +191,7 @@ Create `run_formatter.bat`:
 ```batch
 @echo off
 cd C:\Users\bcpierson\source\DlesFormatter
-python formatter.py -c
+python formatter.py
 pause
 ```
 
@@ -204,7 +203,7 @@ Add to PowerShell profile (`$PROFILE`):
 
 ```powershell
 function puzzles {
-    python C:\Users\bcpierson\source\DlesFormatter\formatter.py -c
+    python C:\Users\bcpierson\source\DlesFormatter\formatter.py
 }
 ```
 
@@ -230,11 +229,7 @@ python verify_structure.py
 python tests\test_formatter.py
 # Should show "21/21 tests passed"
 
-# 3. Test formatter help
-python formatter.py --help
-# Should display help without errors
-
-# 4. Test with example
+# 3. Test with example
 python test_example.py
 # Should show formatted puzzle results with emoji
 ```
@@ -265,7 +260,7 @@ Python automatically handles Windows line endings (CRLF) vs Unix (LF).
 
 ### Clipboard Integration
 
-`pyperclip` works natively on Windows without additional dependencies.
+`pyperclip` works natively on Windows without additional dependencies, enabling the auto-copy feature in interactive mode.
 
 ## Performance on Windows
 

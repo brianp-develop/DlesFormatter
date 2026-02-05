@@ -170,23 +170,19 @@ Formatted Result → Clipboard
 - Easy to add new puzzles to ordering
 - Clear separation of preferences vs logic
 
-## CLI Modes
+## CLI Design
 
-### Interactive Mode (Default)
+### Interactive Mode
 - Stays running, accepts multiple pastes
 - User pastes as they complete puzzles throughout the day
 - Accumulates all input, processes on exit
+- Auto-copies formatted results to clipboard
 - Good for incremental puzzle completion
 
-### Clipboard Mode (`-c` flag)
-- One-shot processing
-- Read clipboard → Format → Write clipboard
-- Good for batch processing all puzzles at once
-
 **Implementation:**
-- Both modes use the same core processing pipeline
-- Only differ in input/output handling
-- `argparse` handles mode selection
+- Runs directly when script is executed (`python formatter.py`)
+- Uses the same core processing pipeline
+- Auto-copy to clipboard using `pyperclip`
 
 ## Error Handling
 
@@ -212,7 +208,7 @@ Formatted Result → Clipboard
 ### Trade-offs
 1. **More files**: Each puzzle needs its own file (worth it for maintainability)
 2. **Some duplication**: Each formatter has similar structure (but customizable)
-3. **Dependency**: Requires `pyperclip` (but essential for clipboard functionality)
+3. **Dependency**: Requires `pyperclip` for auto-copy to clipboard feature
 
 ## Future Extensibility
 
