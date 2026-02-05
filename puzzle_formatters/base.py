@@ -20,10 +20,12 @@ class BasePuzzleFormatter(ABC):
     Attributes:
         puzzle_name (str): Unique identifier for this puzzle type (e.g., "wordle")
         detection_pattern (str): Regex pattern to identify this puzzle in input text
+        end_marker_pattern (str): Regex pattern indicating puzzle completion (optional)
     """
 
     puzzle_name: str = ""
     detection_pattern: str = ""
+    end_marker_pattern: str = ""
 
     @abstractmethod
     def can_parse(self, text: str) -> bool:
