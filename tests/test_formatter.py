@@ -16,6 +16,7 @@ if sys.platform == 'win32':
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from puzzle_formatters import (
+    ConnectionsFormatter,
     FramedFormatter,
     FramedOneFrameFormatter,
     QuoltureFormatter,
@@ -48,6 +49,22 @@ WORDLE_INPUT = """Wordle 1,692 4/6
 ⬛⬛⬛⬛⬛
 🟩🟨🟩⬛⬛
 🟩🟩🟩🟩🟩"""
+
+CONNECTIONS_INPUT = """Connections
+Puzzle #970
+🟦🟦🟦🟦
+🟪🟪🟪🟪
+🟩🟩🟩🟩
+🟨🟨🟨🟨"""
+
+CONNECTIONS_WITH_MIXED = """Connections
+Puzzle #971
+🟦🟪🟩🟨
+🟦🟪🟨🟩
+🟦🟦🟦🟦
+🟪🟪🟪🟪
+🟩🟩🟩🟩
+🟨🟨🟨🟨"""
 
 
 class TestFramedFormatter:
@@ -170,6 +187,53 @@ class TestWordleFormatter:
         assert 'https' not in output
 
 
+class TestConnectionsFormatter:
+    """Tests for ConnectionsFormatter."""
+
+    def test_can_parse_valid_input(self):
+        """Should detect valid Connections puzzle."""
+        formatter = ConnectionsFormatter()
+        assert formatter.can_parse(CONNECTIONS_INPUT) is True
+
+    def test_parse_extracts_number_and_grid(self):
+        """Should extract puzzle number and emoji grid."""
+        formatter = ConnectionsFormatter()
+        result = formatter.parse(CONNECTIONS_INPUT)
+
+        assert result is not None
+        assert result['puzzle_number'] == '970'
+        assert len(result['grid_lines']) == 4  # 4 rows
+
+    def test_format_creates_multiline(self):
+        """Should format as multi-line with title + grid."""
+        formatter = ConnectionsFormatter()
+        data = formatter.parse(CONNECTIONS_INPUT)
+        output = formatter.format(data)
+
+        lines = output.split('\n')
+        assert len(lines) == 5  # Title + 4 grid lines
+        assert 'Connections #970' in lines[0]
+        assert '🟦🟦🟦🟦' in output
+        assert 'Puzzle' not in output  # "Puzzle #" removed in format
+
+    def test_parse_handles_mixed_rows(self):
+        """Should handle puzzles with mixed emoji rows."""
+        formatter = ConnectionsFormatter()
+        result = formatter.parse(CONNECTIONS_WITH_MIXED)
+
+        assert result is not None
+        assert result['puzzle_number'] == '971'
+        assert len(result['grid_lines']) == 6  # 2 mixed + 4 solid rows
+
+        # Check that mixed rows are included
+        assert any('🟦🟪🟩🟨' in line for line in result['grid_lines'])
+
+    def test_formatter_registry(self):
+        """Should be registered and detectable by registry."""
+        formatter = get_formatter_for_text(CONNECTIONS_INPUT)
+        assert isinstance(formatter, ConnectionsFormatter)
+
+
 class TestFormatterRegistry:
     """Tests for formatter auto-detection."""
 
@@ -278,6 +342,32 @@ class TestFullPipeline:
         # Fourth line should be Wordle title
         assert 'Wordle' in lines[3]
 
+    def test_with_connections(self):
+        """Should correctly process puzzles including Connections."""
+        from formatter import process_puzzle_results
+
+        mixed_input = f"""{WORDLE_INPUT}
+
+{CONNECTIONS_INPUT}
+
+{FRAMED_INPUT}"""
+
+        output = process_puzzle_results(mixed_input)
+        lines = output.split('\n')
+
+        # Should be reordered: Framed, [blank], Wordle, [blank], Connections
+        # First line should be Framed
+        assert lines[0].startswith('Framed #1427')
+
+        # Find Wordle and Connections in output
+        output_text = '\n'.join(lines)
+        assert 'Wordle 1,692 4/6' in output_text
+        assert 'Connections #970' in output_text
+
+        # Both Wordle and Connections should have blank lines before them
+        assert '\n\nWordle' in output_text
+        assert '\n\nConnections' in output_text
+
 
 if __name__ == '__main__':
     print("Running tests manually (install pytest for better output)")
@@ -289,8 +379,10 @@ if __name__ == '__main__':
         TestFramedOneFrameFormatter,
         TestQuoltureFormatter,
         TestWordleFormatter,
+        TestConnectionsFormatter,
         TestFormatterRegistry,
         TestEdgeCases,
+        TestFullPipeline,
     ]
 
     total_tests = 0

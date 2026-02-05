@@ -64,8 +64,8 @@ def split_into_puzzle_blocks(text: str) -> List[str]:
     """
     Split input text into individual puzzle blocks.
 
-    Puzzle blocks are separated by URLs or double line breaks.
-    This allows handling puzzles pasted in any order.
+    Puzzle blocks are separated by URLs and known puzzle headers.
+    This allows handling puzzles pasted in any order, including puzzles without URLs.
 
     Args:
         text: Raw input containing one or more puzzle results
@@ -73,12 +73,22 @@ def split_into_puzzle_blocks(text: str) -> List[str]:
     Returns:
         List of text blocks, each potentially containing one puzzle
     """
-    # First, split by URLs (each puzzle typically ends with a URL)
-    # Pattern matches http/https URLs
-    url_pattern = r'https?://[^\s]+'
+    # Split before known puzzle headers
+    # Pattern: Match start of known puzzle titles at beginning of line
+    puzzle_headers = [
+        r'(?=^Framed\s)',
+        r'(?=^Wordle\s)',
+        r'(?=^Connections\s*\n)',
+        r'(?=^"Quolture")',
+    ]
 
-    # Replace URLs with a special delimiter
-    text_with_delimiters = re.sub(url_pattern, '\n---PUZZLE_BREAK---\n', text)
+    text_with_delimiters = text
+    for pattern in puzzle_headers:
+        text_with_delimiters = re.sub(pattern, '---PUZZLE_BREAK---', text_with_delimiters, flags=re.MULTILINE)
+
+    # Also split by URLs (remove URLs and create breaks)
+    url_pattern = r'https?://[^\s]+'
+    text_with_delimiters = re.sub(url_pattern, '\n---PUZZLE_BREAK---\n', text_with_delimiters)
 
     # Split by the delimiter
     blocks = text_with_delimiters.split('---PUZZLE_BREAK---')
@@ -254,6 +264,29 @@ def check_puzzle_complete(lines: List[str]) -> bool:
     emoji_rows = [line for line in lines if re.match(wordle_emoji_pattern, line.strip())]
     if len(emoji_rows) >= 6:
         return True  # All 6 attempts used
+
+    # Special case: Connections puzzle completion detection
+    # A puzzle is complete when EITHER:
+    # 1. 4 solid color rows (all 4 emojis same color) with 0-3 mixed rows, OR
+    # 2. 4 mixed color rows (different colors) with 0-2 solid rows
+    connections_emoji_pattern = r'^[🟦🟪🟩🟨]{4}$'
+    connections_rows = [line for line in lines if re.match(connections_emoji_pattern, line.strip())]
+
+    if len(connections_rows) >= 4:
+        # Count solid rows (all 4 emojis are the same)
+        solid_rows = 0
+        mixed_rows = 0
+
+        for row in connections_rows:
+            emojis = list(row.strip())
+            if len(set(emojis)) == 1:  # All same emoji
+                solid_rows += 1
+            else:
+                mixed_rows += 1
+
+        # Complete if: 4 solid + (0-3 mixed), OR 4 mixed + (0-2 solid)
+        if (solid_rows >= 4 and mixed_rows <= 3) or (mixed_rows >= 4 and solid_rows <= 2):
+            return True
 
     return False
 

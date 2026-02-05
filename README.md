@@ -5,7 +5,7 @@ A Python tool that collates and formats daily puzzle results (Wordle, Framed, Qu
 ## Features
 
 - **Flexible Input**: Paste puzzle results in any order
-- **Missing Puzzle Handling**: Works with 1, 2, 3, or all 4 puzzles
+- **Missing Puzzle Handling**: Works with any combination of supported puzzles
 - **Auto-Reordering**: Outputs puzzles in preferred order regardless of input order
 - **Two Modes**: Interactive (default) or clipboard-based workflow
 - **Extensible**: Easy to add new puzzle types (see [docs/ADDING_PUZZLES.md](docs/ADDING_PUZZLES.md))
@@ -17,6 +17,7 @@ A Python tool that collates and formats daily puzzle results (Wordle, Framed, Qu
 - **Framed One Frame Challenge** - Single frame variant
 - **Quolture** - Movie/TV quote trivia
 - **Wordle** - Daily word puzzle
+- **Connections** - NYT word grouping puzzle
 
 ## Installation
 

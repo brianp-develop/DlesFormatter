@@ -6,6 +6,7 @@ This registry pattern allows adding new puzzles without modifying core logic.
 """
 
 from .base import BasePuzzleFormatter
+from .connections import ConnectionsFormatter
 from .framed import FramedFormatter, FramedOneFrameFormatter
 from .quolture import QuoltureFormatter
 from .wordle import WordleFormatter
@@ -13,6 +14,7 @@ from .wordle import WordleFormatter
 # Registry of all available formatters
 # New formatters are automatically included when imported above
 ALL_FORMATTERS = [
+    ConnectionsFormatter(),
     FramedFormatter(),
     FramedOneFrameFormatter(),
     QuoltureFormatter(),
@@ -56,6 +58,7 @@ def get_formatter_by_name(puzzle_name: str):
 
 __all__ = [
     'BasePuzzleFormatter',
+    'ConnectionsFormatter',
     'FramedFormatter',
     'FramedOneFrameFormatter',
     'QuoltureFormatter',
