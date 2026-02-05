@@ -51,9 +51,12 @@ python formatter.py
 
 1. Run the script
 2. Paste puzzle results (one at a time or all together)
-3. Press Enter on empty input when done
-4. Formatted results are displayed and copied to clipboard
-5. Paste into Teams!
+3. Script automatically detects when each puzzle is complete
+4. Press Ctrl+C when all puzzles are entered
+5. Formatted results are displayed and copied to clipboard
+6. Paste into Teams!
+
+**Note:** The script detects puzzle completion automatically by recognizing end markers (URLs for most puzzles, all-green row or 6 attempts for Wordle). Blank lines within puzzles are preserved.
 
 ### Clipboard Mode
 

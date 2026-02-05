@@ -81,6 +81,9 @@ class [PuzzleName]Formatter(BasePuzzleFormatter):
     # Regex pattern to detect this puzzle
     detection_pattern = r"Pattern to match puzzle title"
 
+    # Regex pattern indicating puzzle completion (for interactive mode)
+    end_marker_pattern = r"Pattern to match completion indicator"
+
     def can_parse(self, text: str) -> bool:
         """Check if text contains [Puzzle Name] puzzle."""
         return bool(re.search(self.detection_pattern, text))
@@ -123,9 +126,18 @@ class [PuzzleName]Formatter(BasePuzzleFormatter):
         return formatted_string
 ```
 
-## Step 3: Implement the Three Methods
+## Step 3: Define Class Attributes
 
-### 3.1 Detection Pattern
+### 3.1 Puzzle Name
+
+Unique identifier (lowercase, underscores):
+```python
+puzzle_name = "connections"
+```
+
+This must match the identifier used in `config.json`.
+
+### 3.2 Detection Pattern
 
 Create a regex that uniquely identifies your puzzle:
 
@@ -142,7 +154,31 @@ detection_pattern = r"#\d+"         # Way too broad
 
 **Testing tip:** Use [regex101.com](https://regex101.com) to test your pattern against sample inputs.
 
-### 3.2 Parse Method
+### 3.3 End Marker Pattern (Optional but Recommended)
+
+Pattern that indicates the puzzle input is complete. Used in interactive mode to automatically detect when a puzzle has been fully pasted.
+
+```python
+# Most puzzles: URL pattern
+end_marker_pattern = r"https://www\.example\.com"
+
+# Wordle: All-green row (successful solve)
+end_marker_pattern = r"🟩🟩🟩🟩🟩"
+
+# Puzzle without URL: Final line pattern
+end_marker_pattern = r"Score: \d+/\d+"
+```
+
+**Common end markers:**
+- **URL-based** (most puzzles): Match the puzzle's URL
+- **Content-based** (Wordle): Match final grid row or success indicator
+- **Score-based**: Match final score line if puzzle has no URL
+
+**Why this matters:** Without an end marker, interactive mode can't detect when the puzzle is complete, requiring the user to manually signal completion. With an end marker, the paste automatically completes when detected.
+
+**Special handling:** Wordle has special logic that also completes after 6 emoji rows (failed solve), so you don't need to add that to the pattern.
+
+### 3.4 Parse Method
 
 Extract the components you need:
 
@@ -178,7 +214,7 @@ def parse(self, text: str) -> Optional[dict]:
 - Grids are multiple lines of emojis
 - Scores/stats are usually on title line or separate line
 
-### 3.3 Format Method
+### 3.5 Format Method
 
 Apply the formatting rules:
 
@@ -368,6 +404,7 @@ class ConnectionsFormatter(BasePuzzleFormatter):
 
     puzzle_name = "connections"
     detection_pattern = r"Connections\s+Puzzle #\d+"
+    end_marker_pattern = r"https://www\.nytimes\.com/games/connections"
 
     def can_parse(self, text: str) -> bool:
         """Check if text contains Connections puzzle."""
