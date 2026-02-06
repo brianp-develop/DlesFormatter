@@ -162,6 +162,45 @@ Strands #705
 
 ---
 
+## Pips
+
+Pips is a 3-part puzzle. Each difficulty level (Easy 🟢, Medium 🟡, Hard 🔴) is captured separately, but all captured Pips are combined into a single output line.
+
+### Input (3 separate clipboard captures)
+
+**Easy:**
+```
+Pips #173 Easy 🟢
+1:25
+```
+
+**Medium:**
+```
+Pips #171 Medium 🟡
+5:52
+```
+
+**Hard:**
+```
+Pips #171 Hard 🔴
+35:28
+```
+
+### Output (combined)
+```
+Pips #173 Easy 🟢 1:25 | Medium 🟡 5:52 | Hard 🔴 35:28
+```
+
+### Formatting Rules
+- Each difficulty is captured separately (press Enter after copying each)
+- All captured Pips puzzles are combined into single line
+- Format: `Pips #XXX [Difficulty] [Emoji] [Time] | [Difficulty] [Emoji] [Time] | ...`
+- Separator between difficulties: ` | `
+- User may complete only 1, 2, or all 3 difficulties (all are combined)
+- Single-line output
+
+---
+
 ## Mixed Input Examples
 
 ### Example 1: All Puzzles in Wrong Order
@@ -391,6 +430,7 @@ Puzzles always appear in this order (defined in `config.json`):
 7. Connections
 8. [blank line if another multi-line puzzle follows]
 9. Strands
+10. Pips (combined into single line)
 
 **Missing puzzles are simply skipped** - the order is maintained for puzzles that are present.
 

@@ -19,6 +19,7 @@ A Python tool that collates and formats daily puzzle results (Wordle, Framed, Qu
 - **Wordle** - Daily word puzzle
 - **Connections** - NYT word grouping puzzle
 - **Strands** - NYT word-finding puzzle
+- **Pips** - 3-part puzzle (Easy 🟢, Medium 🟡, Hard 🔴) - captured separately, combined in output
 
 ## Installation
 

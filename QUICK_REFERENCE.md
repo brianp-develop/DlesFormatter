@@ -18,6 +18,9 @@ python formatter.py
 - ✅ Framed One Frame Challenge
 - ✅ Quolture
 - ✅ Wordle
+- ✅ Connections
+- ✅ Strands
+- ✅ Pips (Easy 🟢, Medium 🟡, Hard 🔴)
 
 ## What Gets Formatted
 
