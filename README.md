@@ -194,8 +194,8 @@ Edit `config.json` to customize puzzle ordering:
     "wordle",
     "connections",
     "strands",
-    "waffle",
-    "pips"
+    "pips",
+    "waffle"
   ]
 }
 ```

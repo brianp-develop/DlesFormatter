@@ -201,7 +201,7 @@ wafflegame.net
 - Remove URL (`wafflegame.net`)
 - Remove all blank lines
 - Multi-line output with blank line separator before it
-- Positioned second-to-last (before Pips)
+- Positioned last (after Pips)
 
 ---
 
@@ -473,9 +473,9 @@ Puzzles always appear in this order (defined in `config.json`):
 7. Connections
 8. [blank line if another multi-line puzzle follows]
 9. Strands
-10. [blank line if another multi-line puzzle follows]
-11. Waffle
-12. Pips (combined into single line)
+10. Pips (combined into single line)
+11. [blank line before Waffle]
+12. Waffle
 
 **Missing puzzles are simply skipped** - the order is maintained for puzzles that are present.
 
