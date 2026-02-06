@@ -338,14 +338,14 @@ def check_puzzle_complete(lines: List[str]) -> bool:
     return False
 
 
-def interactive_mode():
+def interactive_mode(): #This mode (the only mode) was given a name because there used to be a "Clipboard mode" that ran from the contents of your clipboard. 
     """
     Interactive mode: Accept multiple pastes, keep running until user exits.
 
     User can paste puzzle results multiple times as they complete them.
     Press Enter on empty input or Ctrl+C to process and exit.
     """
-    print("=== Puzzle Results Formatter (Interactive Mode) ===")
+    print("=== Puzzle Results Formatter ===")
     print("Paste your puzzle results below.")
     print("The script will detect when each puzzle is complete.")
     print("Press Ctrl+C when all puzzles are entered.")
