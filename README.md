@@ -1,6 +1,8 @@
+Note: This project's primary purpose was to explore development of a simple program with Claude Code. Most code in this repo was written by Claude Sonnet 4.5. It works well for me, but is not built with configurability in mind. YMMV.
+
 # Puzzle Results Formatter
 
-A Python tool that collates and formats daily puzzle results (Wordle, Framed, Quolture, etc.) into a standardized format for sharing in Teams chat.
+A Python tool that collates and formats daily puzzle results (Wordle, Framed, Quolture, etc.) into a standardized format for sharing.
 
 ## Features
 
