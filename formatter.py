@@ -412,6 +412,7 @@ def interactive_mode():
             print(f"Note: Could not copy to clipboard: {e}")
 
         print("\nPaste into Teams and share your results!")
+        input("Press Enter to exit.")
 
 
 def main():
