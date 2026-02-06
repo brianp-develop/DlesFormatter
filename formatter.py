@@ -154,13 +154,12 @@ def sort_puzzles_by_config(puzzles: List[Dict], puzzle_order: List[str]) -> List
     Returns:
         Sorted list of puzzle dictionaries
     """
-    def get_sort_key(puzzle):
+    def get_sort_key(puzzle: Dict) -> int:
         """
         Generate sort key for a puzzle.
 
-        Returns tuple (priority, original_index) where:
-        - priority: Lower numbers come first (position in config, or UNKNOWN_PUZZLE_PRIORITY if not in config)
-        - original_index: Maintains detection order for puzzles not in config
+        Returns:
+            Priority value - lower numbers come first (position in config, or UNKNOWN_PUZZLE_PRIORITY if not in config)
         """
         puzzle_name = puzzle['puzzle_name']
         try:

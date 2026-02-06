@@ -49,7 +49,7 @@ class ConnectionsFormatter(BasePuzzleFormatter):
             - grid_lines: List of emoji grid lines
             - raw_text: Original text for reference
         """
-        lines = [line.strip() for line in text.strip().split('\n') if line.strip()]
+        lines = self._parse_lines(text)
 
         # Extract puzzle number
         puzzle_number = None

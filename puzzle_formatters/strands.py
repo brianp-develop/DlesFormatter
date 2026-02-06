@@ -68,7 +68,7 @@ class StrandsFormatter(BasePuzzleFormatter):
             - emoji_lines: List of emoji lines
             - raw_text: Original text for reference
         """
-        lines = [line.strip() for line in text.strip().split('\n') if line.strip()]
+        lines = self._parse_lines(text)
 
         # Extract puzzle number from title
         puzzle_number = None

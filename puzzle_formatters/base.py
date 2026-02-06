@@ -6,7 +6,7 @@ the required methods for detection, parsing, and formatting.
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, List
 import re
 
 
@@ -66,6 +66,22 @@ class BasePuzzleFormatter(ABC):
             Formatted string ready for output
         """
         pass
+
+    def _parse_lines(self, text: str, filter_empty: bool = True) -> List[str]:
+        """
+        Extract lines from text, optionally filtering empty lines.
+
+        This utility method standardizes line parsing across all formatters.
+
+        Args:
+            text: The text to parse into lines
+            filter_empty: If True, remove empty lines after stripping whitespace
+
+        Returns:
+            List of lines (stripped of leading/trailing whitespace)
+        """
+        lines = [line.strip() for line in text.strip().split('\n')]
+        return [line for line in lines if line] if filter_empty else lines
 
     def process(self, text: str) -> Optional[str]:
         """

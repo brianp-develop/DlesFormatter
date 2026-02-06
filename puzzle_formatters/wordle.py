@@ -47,7 +47,7 @@ class WordleFormatter(BasePuzzleFormatter):
         Returns:
             dict with 'title' and 'grid_lines' keys, or None if parsing fails
         """
-        lines = [line.strip() for line in text.strip().split('\n') if line.strip()]
+        lines = self._parse_lines(text)
 
         # Filter out URL lines
         lines = [line for line in lines if not line.startswith('http')]

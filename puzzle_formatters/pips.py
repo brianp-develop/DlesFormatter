@@ -40,7 +40,7 @@ class PipsFormatter(BasePuzzleFormatter):
         Returns:
             dict with 'puzzle_number', 'difficulty', 'emoji', 'time', or None
         """
-        lines = [line.strip() for line in text.strip().split('\n') if line.strip()]
+        lines = self._parse_lines(text)
 
         if len(lines) < 2:
             return None

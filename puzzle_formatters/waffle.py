@@ -27,7 +27,7 @@ class WaffleFormatter(BasePuzzleFormatter):
 
         Returns dict with: title, puzzle_number, grid_lines (5 lines), streak_info (optional)
         """
-        lines = [line.strip() for line in text.strip().split('\n')]
+        lines = self._parse_lines(text, filter_empty=False)
 
         # Extract title and puzzle number
         title = None
