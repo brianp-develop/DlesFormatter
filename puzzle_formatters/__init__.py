@@ -8,6 +8,7 @@ This registry pattern allows adding new puzzles without modifying core logic.
 from .base import BasePuzzleFormatter
 from .connections import ConnectionsFormatter
 from .framed import FramedFormatter, FramedOneFrameFormatter
+from .pips import PipsFormatter
 from .quolture import QuoltureFormatter
 from .strands import StrandsFormatter
 from .wordle import WordleFormatter
@@ -18,6 +19,7 @@ ALL_FORMATTERS = [
     ConnectionsFormatter(),
     FramedFormatter(),
     FramedOneFrameFormatter(),
+    PipsFormatter(),
     QuoltureFormatter(),
     StrandsFormatter(),
     WordleFormatter(),
@@ -63,6 +65,7 @@ __all__ = [
     'ConnectionsFormatter',
     'FramedFormatter',
     'FramedOneFrameFormatter',
+    'PipsFormatter',
     'QuoltureFormatter',
     'StrandsFormatter',
     'WordleFormatter',

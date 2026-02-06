@@ -19,6 +19,7 @@ from puzzle_formatters import (
     ConnectionsFormatter,
     FramedFormatter,
     FramedOneFrameFormatter,
+    PipsFormatter,
     QuoltureFormatter,
     StrandsFormatter,
     WordleFormatter,
@@ -77,6 +78,15 @@ STRANDS_WITH_HINTS_INPUT = """Strands #706
 💡🟡🔵🔵
 🔵🔵💡🔵
 🔵🔵"""
+
+PIPS_EASY_INPUT = """Pips #173 Easy 🟢
+1:25"""
+
+PIPS_MEDIUM_INPUT = """Pips #171 Medium 🟡
+5:52"""
+
+PIPS_HARD_INPUT = """Pips #171 Hard 🔴
+35:28"""
 
 
 class TestFramedFormatter:
@@ -289,6 +299,144 @@ class TestStrandsFormatter:
         assert '💡' in all_emoji
 
 
+class TestPipsFormatter:
+    """Tests for PipsFormatter."""
+
+    def test_can_parse_easy(self):
+        """Should detect Pips Easy puzzle."""
+        formatter = PipsFormatter()
+        assert formatter.can_parse(PIPS_EASY_INPUT) is True
+
+    def test_can_parse_medium(self):
+        """Should detect Pips Medium puzzle."""
+        formatter = PipsFormatter()
+        assert formatter.can_parse(PIPS_MEDIUM_INPUT) is True
+
+    def test_can_parse_hard(self):
+        """Should detect Pips Hard puzzle."""
+        formatter = PipsFormatter()
+        assert formatter.can_parse(PIPS_HARD_INPUT) is True
+
+    def test_parse_extracts_components_easy(self):
+        """Should extract all components from Easy puzzle."""
+        formatter = PipsFormatter()
+        result = formatter.parse(PIPS_EASY_INPUT)
+
+        assert result is not None
+        assert result['puzzle_number'] == '173'
+        assert result['difficulty'] == 'Easy'
+        assert result['emoji'] == '🟢'
+        assert result['time'] == '1:25'
+
+    def test_parse_extracts_components_medium(self):
+        """Should extract all components from Medium puzzle."""
+        formatter = PipsFormatter()
+        result = formatter.parse(PIPS_MEDIUM_INPUT)
+
+        assert result is not None
+        assert result['puzzle_number'] == '171'
+        assert result['difficulty'] == 'Medium'
+        assert result['emoji'] == '🟡'
+        assert result['time'] == '5:52'
+
+    def test_parse_extracts_components_hard(self):
+        """Should extract all components from Hard puzzle."""
+        formatter = PipsFormatter()
+        result = formatter.parse(PIPS_HARD_INPUT)
+
+        assert result is not None
+        assert result['puzzle_number'] == '171'
+        assert result['difficulty'] == 'Hard'
+        assert result['emoji'] == '🔴'
+        assert result['time'] == '35:28'
+
+    def test_format_single_puzzle(self):
+        """Should format single Pips puzzle as single line."""
+        formatter = PipsFormatter()
+        data = formatter.parse(PIPS_EASY_INPUT)
+        output = formatter.format(data)
+
+        assert output == 'Pips #173 Easy 🟢 1:25'
+        assert '\n' not in output  # Single line
+
+    def test_formatter_registry(self):
+        """Should be registered and detectable by registry."""
+        formatter = get_formatter_for_text(PIPS_EASY_INPUT)
+        assert isinstance(formatter, PipsFormatter)
+
+
+class TestPipsAggregation:
+    """Tests for Pips puzzle aggregation logic."""
+
+    def test_single_pips_puzzle(self):
+        """Should handle single Pips puzzle (no aggregation needed)."""
+        from formatter import process_puzzle_results
+
+        output = process_puzzle_results(PIPS_EASY_INPUT)
+        assert 'Pips #173 Easy 🟢 1:25' in output
+
+    def test_two_pips_puzzles_combined(self):
+        """Should combine two Pips puzzles into single line."""
+        from formatter import process_puzzle_results
+
+        mixed_input = f"""{PIPS_EASY_INPUT}
+
+{PIPS_MEDIUM_INPUT}"""
+
+        output = process_puzzle_results(mixed_input)
+
+        # Should be combined into single line
+        assert 'Pips #173 Easy 🟢 1:25 | Medium 🟡 5:52' in output
+
+        # Should only appear once (not twice)
+        assert output.count('Pips') == 1
+
+    def test_three_pips_puzzles_combined(self):
+        """Should combine all three Pips puzzles into single line."""
+        from formatter import process_puzzle_results
+
+        mixed_input = f"""{PIPS_EASY_INPUT}
+
+{PIPS_MEDIUM_INPUT}
+
+{PIPS_HARD_INPUT}"""
+
+        output = process_puzzle_results(mixed_input)
+
+        # Should be combined into single line with all three
+        assert 'Pips #173 Easy 🟢 1:25 | Medium 🟡 5:52 | Hard 🔴 35:28' in output
+
+        # Should only appear once
+        assert output.count('Pips #') == 1
+
+    def test_pips_with_other_puzzles(self):
+        """Should handle Pips mixed with other puzzle types."""
+        from formatter import process_puzzle_results
+
+        mixed_input = f"""{WORDLE_INPUT}
+
+{PIPS_EASY_INPUT}
+
+{PIPS_MEDIUM_INPUT}
+
+{STRANDS_INPUT}"""
+
+        output = process_puzzle_results(mixed_input)
+
+        # Should contain Wordle
+        assert 'Wordle 1,692 4/6' in output
+
+        # Should contain combined Pips
+        assert 'Pips #173 Easy 🟢 1:25 | Medium 🟡 5:52' in output
+
+        # Should contain Strands
+        assert 'Strands #705' in output
+
+        # Pips should come after Strands (per config order)
+        pips_idx = output.index('Pips')
+        strands_idx = output.index('Strands')
+        assert pips_idx > strands_idx
+
 
 class TestFormatterRegistry:
     """Tests for formatter auto-detection."""
@@ -471,6 +619,8 @@ if __name__ == '__main__':
         TestWordleFormatter,
         TestConnectionsFormatter,
         TestStrandsFormatter,
+        TestPipsFormatter,
+        TestPipsAggregation,
         TestFormatterRegistry,
         TestEdgeCases,
         TestFullPipeline,
