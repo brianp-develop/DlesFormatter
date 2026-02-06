@@ -80,6 +80,7 @@ def split_into_puzzle_blocks(text: str) -> List[str]:
         r'(?=^Wordle\s)',
         r'(?=^Connections\s*\n)',
         r'(?=^"Quolture")',
+        r'(?=^Strands\s)',
     ]
 
     text_with_delimiters = text
@@ -301,6 +302,41 @@ def _is_connections_complete(lines: List[str]) -> bool:
     return (solid_rows >= 4 and mixed_rows <= 3) or (mixed_rows >= 4 and solid_rows <= 2)
 
 
+def _is_strands_complete(lines: List[str]) -> bool:
+    """
+    Check if a Strands puzzle is complete by counting emoji.
+
+    Strands puzzles always have exactly 8 emoji total:
+    - 7 blue dots (🔵) representing found words
+    - 1 yellow dot (🟡) representing the spangram
+    - Optional hint bulbs (💡) that don't count toward completion
+
+    Unlike most puzzles, Strands has no URL for end detection, so we must
+    count emoji to determine completion. Once we see 7 blue + 1 yellow,
+    the puzzle is complete.
+
+    Args:
+        lines: List of input lines accumulated so far
+
+    Returns:
+        True if puzzle shows 7 blue + 1 yellow emoji (8 total)
+    """
+    strands_emoji_pattern = r'^[🔵🟡💡]+$'
+    emoji_lines = [line for line in lines if re.match(strands_emoji_pattern, line.strip())]
+
+    if not emoji_lines:
+        return False
+
+    # Count blue and yellow emoji across all lines
+    all_emoji = ''.join(emoji_lines)
+    blue_count = all_emoji.count('🔵')
+    yellow_count = all_emoji.count('🟡')
+
+    # Complete when we have exactly 7 blue + 1 yellow = 8 total
+    # (Ignore lightbulbs as they're hints, not part of completion)
+    return blue_count == 7 and yellow_count == 1
+
+
 def check_puzzle_complete(lines: List[str]) -> bool:
     """
     Check if accumulated lines contain a complete puzzle.
@@ -333,6 +369,11 @@ def check_puzzle_complete(lines: List[str]) -> bool:
     # Check Connections special case: solid/mixed row counting logic
     # Needed because completion depends on row type analysis, not a single pattern
     if _is_connections_complete(lines):
+        return True
+
+    # Check Strands special case: count emoji to detect 7 blue + 1 yellow
+    # Needed because Strands has no URL and completion is determined by emoji count
+    if _is_strands_complete(lines):
         return True
 
     return False
