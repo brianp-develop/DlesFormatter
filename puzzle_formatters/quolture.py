@@ -32,7 +32,7 @@ class QuoltureFormatter(BasePuzzleFormatter):
 
     def can_parse(self, text: str) -> bool:
         """Check if text contains Quolture puzzle."""
-        return bool(re.search(self.detection_pattern, text))
+        return re.search(self.detection_pattern, text) is not None
 
     def parse(self, text: str) -> Optional[dict]:
         """

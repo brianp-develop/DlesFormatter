@@ -35,6 +35,11 @@ except ImportError:
 
 from puzzle_formatters import get_formatter_for_text
 
+# Constants
+PUZZLE_SEPARATOR = '{PUZZLE_SEPARATOR}'
+UNKNOWN_PUZZLE_PRIORITY = 9999
+PIPS_DIFFICULTY_ORDER = {'Easy': 1, 'Medium': 2, 'Hard': 3}
+
 
 def load_config() -> dict:
     """
@@ -87,14 +92,14 @@ def split_into_puzzle_blocks(text: str) -> List[str]:
 
     text_with_delimiters = text
     for pattern in puzzle_headers:
-        text_with_delimiters = re.sub(pattern, '---PUZZLE_BREAK---', text_with_delimiters, flags=re.MULTILINE)
+        text_with_delimiters = re.sub(pattern, PUZZLE_SEPARATOR, text_with_delimiters, flags=re.MULTILINE)
 
     # Also split by URLs (remove URLs and create breaks)
     url_pattern = r'https?://[^\s]+'
-    text_with_delimiters = re.sub(url_pattern, '\n---PUZZLE_BREAK---\n', text_with_delimiters)
+    text_with_delimiters = re.sub(url_pattern, f'\n{PUZZLE_SEPARATOR}\n', text_with_delimiters)
 
     # Split by the delimiter
-    blocks = text_with_delimiters.split('---PUZZLE_BREAK---')
+    blocks = text_with_delimiters.split(PUZZLE_SEPARATOR)
 
     # Clean up blocks: remove empty ones and strip whitespace
     blocks = [block.strip() for block in blocks if block.strip()]
@@ -154,7 +159,7 @@ def sort_puzzles_by_config(puzzles: List[Dict], puzzle_order: List[str]) -> List
         Generate sort key for a puzzle.
 
         Returns tuple (priority, original_index) where:
-        - priority: Lower numbers come first (position in config, or 9999 if not in config)
+        - priority: Lower numbers come first (position in config, or UNKNOWN_PUZZLE_PRIORITY if not in config)
         - original_index: Maintains detection order for puzzles not in config
         """
         puzzle_name = puzzle['puzzle_name']
@@ -163,7 +168,7 @@ def sort_puzzles_by_config(puzzles: List[Dict], puzzle_order: List[str]) -> List
             priority = puzzle_order.index(puzzle_name)
         except ValueError:
             # Not in config - put at end
-            priority = 9999
+            priority = UNKNOWN_PUZZLE_PRIORITY
 
         return priority
 
@@ -278,7 +283,6 @@ def format_output(puzzles: List[Dict]) -> str:
         return ""
 
     formatted_parts = []
-    previous_was_multiline = False
 
     for puzzle in puzzles:
         # Check if puzzle is pre-formatted (e.g., combined Pips)
@@ -298,7 +302,6 @@ def format_output(puzzles: List[Dict]) -> str:
             formatted_parts.append('')  # Blank line separator
 
         formatted_parts.append(formatted)
-        previous_was_multiline = is_multiline
 
     return '\n'.join(formatted_parts)
 
@@ -351,13 +354,10 @@ def _combine_pips_group(pips_puzzles: List[Dict]) -> Dict:
     Returns:
         Single combined puzzle dictionary
     """
-    # Define difficulty ordering
-    difficulty_order = {'Easy': 1, 'Medium': 2, 'Hard': 3}
-
     # Sort by difficulty before combining
     sorted_pips = sorted(
         pips_puzzles,
-        key=lambda p: difficulty_order.get(p['data']['difficulty'], 999)
+        key=lambda p: PIPS_DIFFICULTY_ORDER.get(p['data']['difficulty'], 999)
     )
 
     # Format each individual Pips puzzle

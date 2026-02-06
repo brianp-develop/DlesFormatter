@@ -5,6 +5,7 @@ Connections is a word grouping game that displays results as colored emoji grids
 """
 
 import re
+from typing import Optional
 from .base import BasePuzzleFormatter
 
 
@@ -27,7 +28,7 @@ class ConnectionsFormatter(BasePuzzleFormatter):
         """
         return re.search(self.detection_pattern, text, re.MULTILINE) is not None
 
-    def parse(self, text: str) -> dict:
+    def parse(self, text: str) -> Optional[dict]:
         """
         Parse Connections puzzle result from text.
 
@@ -65,13 +66,17 @@ class ConnectionsFormatter(BasePuzzleFormatter):
             if re.match(connections_emoji_pattern, line):
                 grid_lines.append(line)
 
+        # Validate puzzle_number was found
+        if not puzzle_number:
+            return None
+
         return {
             'puzzle_number': puzzle_number,
             'grid_lines': grid_lines,
             'raw_text': text
         }
 
-    def format(self, parsed_data: dict) -> str:
+    def format(self, puzzle_data: dict) -> str:
         """
         Format Connections puzzle result for output.
 
@@ -83,13 +88,13 @@ class ConnectionsFormatter(BasePuzzleFormatter):
             🟨🟨🟨🟨
 
         Args:
-            parsed_data: Dictionary from parse() method
+            puzzle_data: Dictionary from parse() method
 
         Returns:
             Formatted string (multi-line)
         """
-        puzzle_number = parsed_data['puzzle_number']
-        grid_lines = parsed_data['grid_lines']
+        puzzle_number = puzzle_data['puzzle_number']
+        grid_lines = puzzle_data['grid_lines']
 
         # Build output: title line + grid rows
         output_lines = [f"Connections #{puzzle_number}"]
