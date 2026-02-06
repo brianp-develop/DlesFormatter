@@ -22,6 +22,7 @@ from puzzle_formatters import (
     PipsFormatter,
     QuoltureFormatter,
     StrandsFormatter,
+    WaffleFormatter,
     WordleFormatter,
     get_formatter_for_text
 )
@@ -87,6 +88,56 @@ PIPS_MEDIUM_INPUT = """Pips #171 Medium 🟡
 
 PIPS_HARD_INPUT = """Pips #171 Hard 🔴
 35:28"""
+
+WAFFLE_INPUT = """#waffle1477 1/5
+
+
+
+🟩🟩🟩🟩🟩
+🟩⬜🟩⬜🟩
+🟩🟩⭐🟩🟩
+🟩⬜🟩⬜🟩
+🟩🟩🟩🟩🟩
+
+
+
+🔥 streak: 2
+
+wafflegame.net"""
+
+WAFFLE_NO_STREAK = """#waffle1478 3/5
+
+🟩🟩🟩🟩🟩
+🟩⬜🟩🟩🟩
+🟩🟩⭐🟩🟩
+🟩🟩🟩⬜🟩
+🟩🟩🟩🟩🟩
+
+wafflegame.net"""
+
+WAFFLE_MANY_BLANKS = """#waffle1479 2/5
+
+
+
+
+🟩🟩🟩🟩🟩
+🟩⬜🟩⬜🟩
+
+
+🟩🟩⭐🟩🟩
+
+
+🟩⬜🟩⬜🟩
+🟩🟩🟩🟩🟩
+
+
+
+
+🔥 streak: 5
+
+
+
+wafflegame.net"""
 
 
 class TestFramedFormatter:
@@ -472,6 +523,112 @@ class TestPipsAggregation:
         assert 'Pips #173 Easy 🟢 1:25 | Medium 🟡 5:52 | Hard 🔴 35:28' in output
 
 
+class TestWaffleFormatter:
+    """Tests for WaffleFormatter."""
+
+    def test_can_parse_valid_input(self):
+        """Should detect valid Waffle puzzle."""
+        formatter = WaffleFormatter()
+        assert formatter.can_parse(WAFFLE_INPUT) is True
+
+    def test_can_parse_no_streak(self):
+        """Should detect Waffle without streak info."""
+        formatter = WaffleFormatter()
+        assert formatter.can_parse(WAFFLE_NO_STREAK) is True
+
+    def test_can_parse_many_blanks(self):
+        """Should detect Waffle with excessive blank lines."""
+        formatter = WaffleFormatter()
+        assert formatter.can_parse(WAFFLE_MANY_BLANKS) is True
+
+    def test_parse_extracts_components(self):
+        """Should extract title, puzzle number, grid, and streak."""
+        formatter = WaffleFormatter()
+        result = formatter.parse(WAFFLE_INPUT)
+
+        assert result is not None
+        assert result['title'] == '#waffle1477 1/5'
+        assert result['puzzle_number'] == '1477'
+        assert len(result['grid_lines']) == 5
+        assert result['streak_info'] == '🔥 streak: 2'
+
+    def test_parse_no_streak(self):
+        """Should handle missing streak info gracefully."""
+        formatter = WaffleFormatter()
+        result = formatter.parse(WAFFLE_NO_STREAK)
+
+        assert result is not None
+        assert result['title'] == '#waffle1478 3/5'
+        assert result['puzzle_number'] == '1478'
+        assert len(result['grid_lines']) == 5
+        assert result['streak_info'] is None
+
+    def test_parse_validates_grid_size(self):
+        """Should reject input without exactly 5 grid lines."""
+        formatter = WaffleFormatter()
+
+        invalid_input = """#waffle1477 1/5
+🟩🟩🟩🟩🟩
+🟩⬜🟩⬜🟩
+🟩🟩⭐🟩🟩
+wafflegame.net"""
+
+        result = formatter.parse(invalid_input)
+        assert result is None
+
+    def test_format_with_streak(self):
+        """Should format with streak info when present."""
+        formatter = WaffleFormatter()
+        data = formatter.parse(WAFFLE_INPUT)
+        output = formatter.format(data)
+
+        lines = output.strip().split('\n')
+        assert len(lines) == 7  # Title + 5 grid + streak
+        assert lines[0] == '#waffle1477 1/5'
+        assert lines[1] == '🟩🟩🟩🟩🟩'
+        assert lines[6] == '🔥 streak: 2'
+        assert 'wafflegame.net' not in output
+
+    def test_format_without_streak(self):
+        """Should format without streak when absent."""
+        formatter = WaffleFormatter()
+        data = formatter.parse(WAFFLE_NO_STREAK)
+        output = formatter.format(data)
+
+        lines = output.strip().split('\n')
+        assert len(lines) == 6  # Title + 5 grid (no streak)
+        assert lines[0] == '#waffle1478 3/5'
+        assert 'streak' not in output
+
+    def test_format_removes_blank_lines(self):
+        """Should remove all blank lines from output."""
+        formatter = WaffleFormatter()
+        data = formatter.parse(WAFFLE_MANY_BLANKS)
+        output = formatter.format(data)
+
+        assert '\n\n' not in output
+        lines = output.strip().split('\n')
+        assert all(line.strip() for line in lines)
+
+    def test_formatter_registry(self):
+        """Should be registered and detectable by registry."""
+        formatter = get_formatter_for_text(WAFFLE_INPUT)
+        assert isinstance(formatter, WaffleFormatter)
+
+    def test_format_multiline_with_separator(self):
+        """Should add blank line separator before Waffle in multi-puzzle output."""
+        from formatter import process_puzzle_results
+
+        mixed_input = f"""{FRAMED_INPUT}
+
+{WAFFLE_INPUT}"""
+
+        output = process_puzzle_results(mixed_input)
+
+        # Should have blank line before Waffle (multi-line puzzle)
+        assert '\n\n#waffle' in output
+
+
 class TestFormatterRegistry:
     """Tests for formatter auto-detection."""
 
@@ -639,6 +796,40 @@ class TestFullPipeline:
         assert 'Strands #705' in output
         assert '"Let\'s face it"' in output
         assert '\n\nStrands' in output  # Blank line before Strands
+
+    def test_waffle_in_mixed_input(self):
+        """Should detect and format Waffle among other puzzles."""
+        from formatter import detect_and_parse_puzzles, sort_puzzles_by_config, format_output, load_config
+
+        mixed_input = f"""{WORDLE_INPUT}
+
+{CONNECTIONS_INPUT}
+
+{WAFFLE_INPUT}"""
+
+        config = load_config()
+        puzzles = detect_and_parse_puzzles(mixed_input)
+
+        # Should find all 3 puzzles
+        puzzle_names = [p['puzzle_name'] for p in puzzles]
+        assert 'waffle' in puzzle_names
+        assert 'wordle' in puzzle_names
+        assert 'connections' in puzzle_names
+
+        # Waffle should come after Connections and Wordle
+        sorted_puzzles = sort_puzzles_by_config(puzzles, config['puzzle_order'])
+        sorted_names = [p['puzzle_name'] for p in sorted_puzzles]
+        waffle_idx = sorted_names.index('waffle')
+        connections_idx = sorted_names.index('connections')
+        wordle_idx = sorted_names.index('wordle')
+        assert waffle_idx > connections_idx
+        assert waffle_idx > wordle_idx
+
+        # Verify formatted output
+        output = format_output(sorted_puzzles)
+        assert '#waffle1477 1/5' in output
+        assert '🔥 streak: 2' in output
+        assert '\n\n#waffle' in output  # Blank line before Waffle
 
 
 class TestDeduplication:
@@ -823,6 +1014,7 @@ if __name__ == '__main__':
         TestStrandsFormatter,
         TestPipsFormatter,
         TestPipsAggregation,
+        TestWaffleFormatter,
         TestDeduplication,
         TestFormatterRegistry,
         TestEdgeCases,

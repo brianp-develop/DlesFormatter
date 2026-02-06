@@ -162,6 +162,49 @@ Strands #705
 
 ---
 
+## Waffle
+
+### Input
+```
+#waffle1477 1/5
+
+
+
+🟩🟩🟩🟩🟩
+🟩⬜🟩⬜🟩
+🟩🟩⭐🟩🟩
+🟩⬜🟩⬜🟩
+🟩🟩🟩🟩🟩
+
+
+
+🔥 streak: 2
+
+wafflegame.net
+```
+
+### Output
+```
+#waffle1477 1/5
+🟩🟩🟩🟩🟩
+🟩⬜🟩⬜🟩
+🟩🟩⭐🟩🟩
+🟩⬜🟩⬜🟩
+🟩🟩🟩🟩🟩
+🔥 streak: 2
+```
+
+### Formatting Rules
+- Preserve title line: `#waffleXXXX X/5`
+- Preserve 5x5 emoji grid (5 lines)
+- Preserve streak information if present
+- Remove URL (`wafflegame.net`)
+- Remove all blank lines
+- Multi-line output with blank line separator before it
+- Positioned second-to-last (before Pips)
+
+---
+
 ## Pips
 
 Pips is a 3-part puzzle. Each difficulty level (Easy 🟢, Medium 🟡, Hard 🔴) is captured separately, but all captured Pips are combined into a single output line.
@@ -414,7 +457,7 @@ https://www.quolture.com
    - No blank lines between them
    - Appear consecutively
 
-2. **Multi-line puzzles** (Wordle, Connections, Strands):
+2. **Multi-line puzzles** (Wordle, Connections, Strands, Waffle):
    - Blank line added **before** each multi-line puzzle if there are previous puzzles
    - No blank line if the puzzle is first or only
 
@@ -430,7 +473,9 @@ Puzzles always appear in this order (defined in `config.json`):
 7. Connections
 8. [blank line if another multi-line puzzle follows]
 9. Strands
-10. Pips (combined into single line)
+10. [blank line if another multi-line puzzle follows]
+11. Waffle
+12. Pips (combined into single line)
 
 **Missing puzzles are simply skipped** - the order is maintained for puzzles that are present.
 
@@ -459,4 +504,14 @@ All `https://...` lines are automatically removed from output.
   Strands #705
   "Let's face it"
   🟡🔵🔵🔵🔵🔵🔵🔵
+  ```
+- **Waffle**: Title on first line, 5x5 grid below, optional streak at end
+  ```
+  #waffle1477 1/5
+  🟩🟩🟩🟩🟩
+  🟩⬜🟩⬜🟩
+  🟩🟩⭐🟩🟩
+  🟩⬜🟩⬜🟩
+  🟩🟩🟩🟩🟩
+  🔥 streak: 2
   ```

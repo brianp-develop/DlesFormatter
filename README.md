@@ -19,6 +19,7 @@ A Python tool that collates and formats daily puzzle results (Wordle, Framed, Qu
 - **Wordle** - Daily word puzzle
 - **Connections** - NYT word grouping puzzle
 - **Strands** - NYT word-finding puzzle
+- **Waffle** - Daily word grid puzzle with swappable letters
 - **Pips** - 3-part puzzle (Easy 🟢, Medium 🟡, Hard 🔴) - captured separately, combined in output
 
 ## Installation
@@ -192,7 +193,9 @@ Edit `config.json` to customize puzzle ordering:
     "quolture",
     "wordle",
     "connections",
-    "strands"
+    "strands",
+    "waffle",
+    "pips"
   ]
 }
 ```
