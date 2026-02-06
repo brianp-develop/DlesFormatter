@@ -81,6 +81,7 @@ def split_into_puzzle_blocks(text: str) -> List[str]:
         r'(?=^Connections\s*\n)',
         r'(?=^"Quolture")',
         r'(?=^Strands\s)',
+        r'(?=^Pips\s)',
     ]
 
     text_with_delimiters = text
@@ -189,11 +190,14 @@ def format_output(puzzles: List[Dict]) -> str:
     previous_was_multiline = False
 
     for puzzle in puzzles:
-        formatter = puzzle['formatter']
-        data = puzzle['data']
-
-        # Format this puzzle
-        formatted = formatter.format(data)
+        # Check if puzzle is pre-formatted (e.g., combined Pips)
+        if 'formatted' in puzzle:
+            formatted = puzzle['formatted']
+        else:
+            formatter = puzzle['formatter']
+            data = puzzle['data']
+            # Format this puzzle
+            formatted = formatter.format(data)
 
         # Determine if this is a multi-line puzzle (Wordle)
         is_multiline = '\n' in formatted
@@ -206,6 +210,82 @@ def format_output(puzzles: List[Dict]) -> str:
         previous_was_multiline = is_multiline
 
     return '\n'.join(formatted_parts)
+
+
+def aggregate_pips_puzzles(puzzles: List[Dict]) -> List[Dict]:
+    """
+    Combine multiple Pips puzzles into single entry.
+
+    Multiple Pips puzzles (Easy, Medium, Hard) should be formatted as a single line:
+    "Pips #XXX Easy 🟢 1:25 | Medium 🟡 5:52 | Hard 🔴 35:28"
+
+    Args:
+        puzzles: List of puzzle dictionaries (already sorted)
+
+    Returns:
+        List with consecutive Pips entries combined into single entry
+    """
+    if not puzzles:
+        return puzzles
+
+    result = []
+    pips_group = []
+
+    for puzzle in puzzles:
+        if puzzle['puzzle_name'] == 'pips':
+            pips_group.append(puzzle)
+        else:
+            # Not a Pips puzzle - flush any accumulated Pips first
+            if pips_group:
+                result.append(_combine_pips_group(pips_group))
+                pips_group = []
+            result.append(puzzle)
+
+    # Flush remaining Pips group
+    if pips_group:
+        result.append(_combine_pips_group(pips_group))
+
+    return result
+
+
+def _combine_pips_group(pips_puzzles: List[Dict]) -> Dict:
+    """
+    Combine multiple Pips puzzle entries into single entry.
+
+    Args:
+        pips_puzzles: List of Pips puzzle dictionaries
+
+    Returns:
+        Single combined puzzle dictionary
+    """
+    # Format each individual Pips puzzle
+    formatted_parts = []
+    for puzzle in pips_puzzles:
+        formatter = puzzle['formatter']
+        data = puzzle['data']
+        formatted = formatter.format(data)
+
+        # Remove "Pips #XXX " prefix from all but the first
+        if formatted_parts:
+            # Extract just "Difficulty Emoji Time" part
+            # Format is: "Pips #XXX Difficulty Emoji Time"
+            parts = formatted.split(' ', 2)  # Split into ["Pips", "#XXX", "Difficulty Emoji Time"]
+            if len(parts) >= 3:
+                formatted = parts[2]  # Just "Difficulty Emoji Time"
+
+        formatted_parts.append(formatted)
+
+    # Join with " | " separator
+    combined_formatted = ' | '.join(formatted_parts)
+
+    # Return combined entry (keep first puzzle's metadata)
+    first_puzzle = pips_puzzles[0]
+    return {
+        'puzzle_name': 'pips',
+        'formatter': first_puzzle['formatter'],
+        'data': first_puzzle['data'],
+        'formatted': combined_formatted  # Pre-formatted combined output
+    }
 
 
 def process_puzzle_results(input_text: str) -> str:
@@ -231,8 +311,11 @@ def process_puzzle_results(input_text: str) -> str:
     # Sort puzzles by configured order
     sorted_puzzles = sort_puzzles_by_config(puzzles, puzzle_order)
 
+    # Aggregate multiple Pips puzzles into single entry
+    aggregated_puzzles = aggregate_pips_puzzles(sorted_puzzles)
+
     # Format into final output
-    output = format_output(sorted_puzzles)
+    output = format_output(aggregated_puzzles)
 
     return output
 
