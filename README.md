@@ -103,20 +103,22 @@ alias puzzles='cd /path/to/DlesFormatter && python formatter.py'
 
 ### Interactive Mode
 
-Perfect for pasting results throughout the day as you complete puzzles:
+Perfect for collecting results throughout the day as you complete puzzles:
 
 ```bash
 python formatter.py
 ```
 
-1. Run the script
-2. Paste puzzle results (one at a time or all together)
-3. Script automatically detects when each puzzle is complete
-4. Press Ctrl+C when all puzzles are entered
-5. Formatted results are displayed
-6. Copy and paste into Teams!
+1. Run the script (leave it running throughout the day)
+2. Complete a puzzle and copy the result (Ctrl+C from the puzzle site)
+3. Switch to the formatter terminal and press Enter
+4. The tool captures the puzzle from clipboard
+5. Repeat steps 2-4 for each puzzle you complete
+6. Press Ctrl+C when done with all puzzles
+7. Formatted results are automatically copied to clipboard!
+8. Paste into Teams and share!
 
-**Note:** The script detects puzzle completion automatically by recognizing end markers (URLs for most puzzles, all-green row or 6 attempts for Wordle). Blank lines within puzzles are preserved.
+**Note:** Each Enter press reads your clipboard, so you can collect puzzles incrementally throughout the day.
 
 ## Example
 

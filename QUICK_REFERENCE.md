@@ -6,9 +6,11 @@
 ```bash
 python formatter.py
 ```
-- Paste puzzle results as you complete them
+- Copy puzzle result (Ctrl+C from puzzle site)
+- Press Enter in formatter terminal to capture
+- Repeat for each puzzle
 - Press Ctrl+C when done
-- Copy results and paste into Teams
+- Results automatically copied to clipboard - paste into Teams!
 
 ## Supported Puzzles
 
@@ -108,13 +110,16 @@ Morning ────────────────────────
   │  Complete     Complete      Complete     Complete     │
   │  Framed       Wordle        Quolture     One Frame    │
   │     │            │              │            │        │
+  │  Copy+Enter  Copy+Enter    Copy+Enter   Copy+Enter    │
+  │     │            │              │            │        │
   │     └────────────┴──────────────┴────────────┘        │
+  │                  (formatter.py                        │
+  │                 running all day)                      │
   │                       │                               │
-  │                  Paste all into                       │
-  │                   formatter.py                        │
+  │                   Ctrl+C to finish                    │
   │                       │                               │
   │                Auto-reordered &                       │
-  │                   formatted                           │
+  │                 copied to clipboard                   │
   │                       │                               │
   │                Paste into Teams!                      │
   │                                                        │

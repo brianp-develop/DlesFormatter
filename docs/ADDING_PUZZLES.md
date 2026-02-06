@@ -156,63 +156,7 @@ detection_pattern = r"#\d+"         # Way too broad
 
 **Testing tip:** Use [regex101.com](https://regex101.com) to test your pattern against sample inputs.
 
-### 3.3 End Marker Pattern (Optional but Recommended)
-
-Pattern that indicates the puzzle input is complete. Used in interactive mode to automatically detect when a puzzle has been fully pasted.
-
-```python
-# Most puzzles: URL pattern
-end_marker_pattern = r"https://www\.example\.com"
-
-# Wordle: All-green row (successful solve)
-end_marker_pattern = r"🟩🟩🟩🟩🟩"
-
-# Puzzle without URL: Final line pattern
-end_marker_pattern = r"Score: \d+/\d+"
-```
-
-**Common end markers:**
-- **URL-based** (most puzzles): Match the puzzle's URL
-- **Content-based** (Wordle): Match final grid row or success indicator
-- **Score-based**: Match final score line if puzzle has no URL
-
-**Why this matters:** Without an end marker, interactive mode can't detect when the puzzle is complete, requiring the user to manually signal completion. With an end marker, the paste automatically completes when detected.
-
-**Special handling for complex completion detection:**
-
-Some puzzles require custom completion logic beyond a simple pattern match:
-
-1. **Wordle**: Has special logic that also completes after 6 emoji rows (failed solve), in addition to the all-green row pattern.
-
-2. **Connections**: Uses `_is_connections_complete()` function to count solid vs mixed rows, since completion depends on analyzing row types rather than matching a single pattern.
-
-3. **Strands**: Uses `_is_strands_complete()` function to count emoji (7 blue 🔵 + 1 yellow 🟡 = complete). Since Strands has no URL and completion is determined by total emoji count, it needs custom logic in `formatter.py`:
-
-```python
-def _is_strands_complete(lines: List[str]) -> bool:
-    """Check if Strands puzzle is complete by counting emoji."""
-    strands_emoji_pattern = r'^[🔵🟡💡]+$'
-    emoji_lines = [line for line in lines if re.match(strands_emoji_pattern, line.strip())]
-
-    if not emoji_lines:
-        return False
-
-    all_emoji = ''.join(emoji_lines)
-    blue_count = all_emoji.count('🔵')
-    yellow_count = all_emoji.count('🟡')
-
-    return blue_count == 7 and yellow_count == 1
-```
-
-Then add the check to `check_puzzle_complete()`:
-```python
-if _is_strands_complete(lines):
-    return True
-```
-
-**If your puzzle needs custom completion logic**, set `end_marker_pattern = ""` and add a helper function in `formatter.py` similar to the examples above.
-
-### 3.4 Parse Method
+### 3.3 Parse Method
 
 Extract the components you need:
 
@@ -248,7 +192,7 @@ def parse(self, text: str) -> Optional[dict]:
 - Grids are multiple lines of emojis
 - Scores/stats are usually on title line or separate line
 
-### 3.5 Format Method
+### 3.4 Format Method
 
 Apply the formatting rules:
 
