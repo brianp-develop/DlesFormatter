@@ -9,6 +9,7 @@ from .base import BasePuzzleFormatter
 from .connections import ConnectionsFormatter
 from .framed import FramedFormatter, FramedOneFrameFormatter
 from .quolture import QuoltureFormatter
+from .strands import StrandsFormatter
 from .wordle import WordleFormatter
 
 # Registry of all available formatters
@@ -18,6 +19,7 @@ ALL_FORMATTERS = [
     FramedFormatter(),
     FramedOneFrameFormatter(),
     QuoltureFormatter(),
+    StrandsFormatter(),
     WordleFormatter(),
 ]
 
@@ -62,6 +64,7 @@ __all__ = [
     'FramedFormatter',
     'FramedOneFrameFormatter',
     'QuoltureFormatter',
+    'StrandsFormatter',
     'WordleFormatter',
     'ALL_FORMATTERS',
     'get_formatter_for_text',
