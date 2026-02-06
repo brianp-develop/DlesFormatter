@@ -169,6 +169,92 @@ def sort_puzzles_by_config(puzzles: List[Dict], puzzle_order: List[str]) -> List
     return sorted(puzzles, key=get_sort_key)
 
 
+def _get_puzzle_identity(puzzle: Dict) -> tuple:
+    """
+    Extract unique identity for a puzzle to detect duplicates.
+
+    Different puzzle types have different identity criteria:
+    - Pips: (name, number, difficulty) - Easy vs Medium are different puzzles
+    - Most others: (name, number) - e.g., Wordle 1692
+
+    Args:
+        puzzle: Puzzle dictionary with 'puzzle_name' and 'data' keys
+
+    Returns:
+        Tuple representing unique identity of this puzzle
+    """
+    puzzle_name = puzzle['puzzle_name']
+    data = puzzle['data']
+
+    if puzzle_name == 'pips':
+        # Pips: Same puzzle number but different difficulties are different puzzles
+        return (puzzle_name, data['puzzle_number'], data['difficulty'])
+
+    elif puzzle_name == 'wordle':
+        # Extract puzzle number from title: "Wordle 1,692 4/6" -> "1692"
+        match = re.search(r'Wordle\s+([\d,]+)', data['title'])
+        if match:
+            puzzle_number = match.group(1).replace(',', '')
+            return (puzzle_name, puzzle_number)
+        # Fallback to hash if we can't extract number
+        return (puzzle_name, hash(data.get('raw_text', '')))
+
+    elif puzzle_name in ['framed', 'framed_one_frame']:
+        # Extract from data (should have puzzle_number from parsing)
+        # Fallback: extract from raw_text if needed
+        if 'puzzle_number' in data:
+            return (puzzle_name, data['puzzle_number'])
+        # Extract from raw text: "Framed #XXX" or similar
+        match = re.search(r'#(\d+)', data.get('raw_text', ''))
+        if match:
+            return (puzzle_name, match.group(1))
+        return (puzzle_name, hash(data.get('raw_text', '')))
+
+    elif puzzle_name == 'connections':
+        # Direct access to puzzle_number
+        return (puzzle_name, data.get('puzzle_number', ''))
+
+    elif puzzle_name == 'strands':
+        # Direct access to puzzle_number
+        return (puzzle_name, data.get('puzzle_number', ''))
+
+    elif puzzle_name == 'quolture':
+        # Extract from first line: '"Quolture" 1692'
+        if data.get('lines'):
+            match = re.search(r'"Quolture"\s+(\d+)', data['lines'][0])
+            if match:
+                return (puzzle_name, match.group(1))
+        return (puzzle_name, hash(data.get('raw_text', '')))
+
+    # Fallback for unknown puzzle types
+    return (puzzle_name, hash(data.get('raw_text', '')))
+
+
+def deduplicate_puzzles(puzzles: List[Dict]) -> List[Dict]:
+    """
+    Remove duplicate puzzles, keeping only the first occurrence.
+
+    Uses _get_puzzle_identity() to determine uniqueness.
+    For Pips, same puzzle number but different difficulties are NOT duplicates.
+
+    Args:
+        puzzles: List of puzzle dictionaries
+
+    Returns:
+        List with duplicates removed
+    """
+    seen_identities = set()
+    unique_puzzles = []
+
+    for puzzle in puzzles:
+        identity = _get_puzzle_identity(puzzle)
+        if identity not in seen_identities:
+            seen_identities.add(identity)
+            unique_puzzles.append(puzzle)
+
+    return unique_puzzles
+
+
 def format_output(puzzles: List[Dict]) -> str:
     """
     Format all puzzles into final output string.
@@ -252,15 +338,26 @@ def _combine_pips_group(pips_puzzles: List[Dict]) -> Dict:
     """
     Combine multiple Pips puzzle entries into single entry.
 
+    Puzzles are sorted by difficulty (Easy, Medium, Hard) before combining.
+
     Args:
         pips_puzzles: List of Pips puzzle dictionaries
 
     Returns:
         Single combined puzzle dictionary
     """
+    # Define difficulty ordering
+    difficulty_order = {'Easy': 1, 'Medium': 2, 'Hard': 3}
+
+    # Sort by difficulty before combining
+    sorted_pips = sorted(
+        pips_puzzles,
+        key=lambda p: difficulty_order.get(p['data']['difficulty'], 999)
+    )
+
     # Format each individual Pips puzzle
     formatted_parts = []
-    for puzzle in pips_puzzles:
+    for puzzle in sorted_pips:
         formatter = puzzle['formatter']
         data = puzzle['data']
         formatted = formatter.format(data)
@@ -278,8 +375,8 @@ def _combine_pips_group(pips_puzzles: List[Dict]) -> Dict:
     # Join with " | " separator
     combined_formatted = ' | '.join(formatted_parts)
 
-    # Return combined entry (keep first puzzle's metadata)
-    first_puzzle = pips_puzzles[0]
+    # Return combined entry (keep first puzzle's metadata after sorting)
+    first_puzzle = sorted_pips[0]
     return {
         'puzzle_name': 'pips',
         'formatter': first_puzzle['formatter'],
@@ -311,8 +408,11 @@ def process_puzzle_results(input_text: str) -> str:
     # Sort puzzles by configured order
     sorted_puzzles = sort_puzzles_by_config(puzzles, puzzle_order)
 
+    # Remove duplicates (keeps first occurrence)
+    deduplicated_puzzles = deduplicate_puzzles(sorted_puzzles)
+
     # Aggregate multiple Pips puzzles into single entry
-    aggregated_puzzles = aggregate_pips_puzzles(sorted_puzzles)
+    aggregated_puzzles = aggregate_pips_puzzles(deduplicated_puzzles)
 
     # Format into final output
     output = format_output(aggregated_puzzles)

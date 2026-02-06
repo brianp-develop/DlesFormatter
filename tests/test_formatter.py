@@ -437,6 +437,40 @@ class TestPipsAggregation:
         strands_idx = output.index('Strands')
         assert pips_idx > strands_idx
 
+    def test_pips_out_of_order(self):
+        """Should sort Pips by difficulty (Easy, Medium, Hard) regardless of input order."""
+        from formatter import process_puzzle_results
+
+        # Paste Medium before Easy (reversed order)
+        # Note: Easy is #173, Medium is #171 (different puzzle numbers in test data)
+        mixed_input = f"""{PIPS_MEDIUM_INPUT}
+
+{PIPS_EASY_INPUT}"""
+
+        output = process_puzzle_results(mixed_input)
+
+        # Should be reordered: Easy first, then Medium
+        # Uses puzzle number from first sorted entry (Easy #173)
+        assert 'Pips #173 Easy 🟢 1:25 | Medium 🟡 5:52' in output
+
+    def test_pips_all_three_out_of_order(self):
+        """Should sort all three Pips difficulties correctly."""
+        from formatter import process_puzzle_results
+
+        # Paste in random order: Hard, Easy, Medium
+        # Note: Easy is #173, Medium/Hard are #171
+        mixed_input = f"""{PIPS_HARD_INPUT}
+
+{PIPS_EASY_INPUT}
+
+{PIPS_MEDIUM_INPUT}"""
+
+        output = process_puzzle_results(mixed_input)
+
+        # Should be reordered: Easy, Medium, Hard
+        # Uses puzzle number from first sorted entry (Easy #173)
+        assert 'Pips #173 Easy 🟢 1:25 | Medium 🟡 5:52 | Hard 🔴 35:28' in output
+
 
 class TestFormatterRegistry:
     """Tests for formatter auto-detection."""
@@ -607,6 +641,174 @@ class TestFullPipeline:
         assert '\n\nStrands' in output  # Blank line before Strands
 
 
+class TestDeduplication:
+    """Tests for duplicate puzzle detection and removal."""
+
+    def test_deduplicate_exact_wordle_duplicate(self):
+        """Should remove exact Wordle duplicates, keeping only first occurrence."""
+        from formatter import process_puzzle_results
+
+        # Same Wordle pasted 3 times
+        triple_input = f"""{WORDLE_INPUT}
+
+{WORDLE_INPUT}
+
+{WORDLE_INPUT}"""
+
+        output = process_puzzle_results(triple_input)
+
+        # Wordle should appear exactly once
+        wordle_count = output.count('Wordle 1,692 4/6')
+        assert wordle_count == 1, f"Expected Wordle to appear once, but appeared {wordle_count} times"
+
+    def test_deduplicate_exact_framed_duplicate(self):
+        """Should remove exact Framed duplicates."""
+        from formatter import process_puzzle_results
+
+        # Same Framed pasted 3 times
+        triple_input = f"""{FRAMED_INPUT}
+
+{FRAMED_INPUT}
+
+{FRAMED_INPUT}"""
+
+        output = process_puzzle_results(triple_input)
+
+        # Framed should appear exactly once
+        framed_count = output.count('Framed #1427')
+        assert framed_count == 1, f"Expected Framed to appear once, but appeared {framed_count} times"
+
+    def test_deduplicate_pips_same_difficulty(self):
+        """Should remove duplicate Pips of same difficulty."""
+        from formatter import process_puzzle_results
+
+        # Pips Easy (x2) + Medium (x1)
+        mixed_input = f"""{PIPS_EASY_INPUT}
+
+{PIPS_EASY_INPUT}
+
+{PIPS_MEDIUM_INPUT}"""
+
+        output = process_puzzle_results(mixed_input)
+
+        # Easy should appear once (not twice)
+        # Output format: "Pips #173 Easy 🟢 1:25 | Medium 🟡 5:52"
+        assert 'Pips #173 Easy 🟢 1:25 | Medium 🟡 5:52' in output
+        # Verify Easy doesn't appear twice in the pipe-separated list
+        assert output.count('Easy 🟢 1:25') == 1
+
+    def test_no_deduplicate_pips_different_difficulty(self):
+        """Should NOT deduplicate Pips with different difficulties - they're different puzzles."""
+        from formatter import process_puzzle_results
+
+        # Pips Easy + Medium (different difficulties, same or different puzzle numbers)
+        combined_input = f"""{PIPS_EASY_INPUT}
+
+{PIPS_MEDIUM_INPUT}"""
+
+        output = process_puzzle_results(combined_input)
+
+        # Both should be kept and combined
+        assert 'Easy 🟢 1:25' in output
+        assert 'Medium 🟡 5:52' in output
+        # Should be on same line (pipe-separated)
+        assert '|' in output
+
+    def test_deduplicate_mixed_puzzles(self):
+        """Should deduplicate mixed puzzle types correctly."""
+        from formatter import process_puzzle_results
+
+        # Multiple puzzle types with duplicates
+        mixed_input = f"""{FRAMED_INPUT}
+
+{WORDLE_INPUT}
+
+{FRAMED_INPUT}
+
+{CONNECTIONS_INPUT}
+
+{CONNECTIONS_INPUT}
+
+{WORDLE_INPUT}"""
+
+        output = process_puzzle_results(mixed_input)
+
+        # Each puzzle should appear exactly once
+        assert output.count('Framed #1427') == 1
+        assert output.count('Wordle 1,692 4/6') == 1
+        assert output.count('Connections #970') == 1
+
+    def test_deduplicate_keeps_first_occurrence(self):
+        """Should keep first occurrence, not last."""
+        from formatter import process_puzzle_results, detect_and_parse_puzzles, deduplicate_puzzles
+
+        # Parse puzzles and check raw_text to verify first is kept
+        triple_input = f"""{FRAMED_INPUT}
+
+{FRAMED_INPUT}
+
+{FRAMED_INPUT}"""
+
+        puzzles = detect_and_parse_puzzles(triple_input)
+        assert len(puzzles) == 3  # Three parsed
+
+        deduplicated = deduplicate_puzzles(puzzles)
+        assert len(deduplicated) == 1  # Only one kept
+
+        # Verify it's the first one (all should be identical in this case, but order matters)
+        assert deduplicated[0]['data']['raw_text'] == puzzles[0]['data']['raw_text']
+
+    def test_no_deduplication_different_puzzle_numbers(self):
+        """Should NOT deduplicate puzzles with different numbers (user catching up on old puzzles)."""
+        from formatter import process_puzzle_results
+
+        # Two different Wordle puzzles
+        wordle_1692 = WORDLE_INPUT  # Wordle 1,692
+        wordle_1693 = """Wordle 1,693 3/6
+
+🟩⬛⬛⬛⬛
+🟩🟩⬛⬛⬛
+🟩🟩🟩🟩🟩"""
+
+        combined_input = f"""{wordle_1692}
+
+{wordle_1693}"""
+
+        output = process_puzzle_results(combined_input)
+
+        # Both should be kept (different puzzle numbers)
+        assert 'Wordle 1,692' in output
+        assert 'Wordle 1,693' in output
+
+    def test_deduplicate_all_pips_difficulties_duplicated(self):
+        """Should deduplicate when all three Pips difficulties are duplicated."""
+        from formatter import process_puzzle_results
+
+        # Easy (x2) + Medium (x2) + Hard (x2)
+        # Note: Medium and Hard have same puzzle number (#171), Easy has #173
+        all_duplicated = f"""{PIPS_EASY_INPUT}
+
+{PIPS_EASY_INPUT}
+
+{PIPS_MEDIUM_INPUT}
+
+{PIPS_MEDIUM_INPUT}
+
+{PIPS_HARD_INPUT}
+
+{PIPS_HARD_INPUT}"""
+
+        output = process_puzzle_results(all_duplicated)
+
+        # Each difficulty should appear exactly once in the combined output
+        # Format: "Pips #173 Easy 🟢 1:25 | Medium 🟡 5:52 | Hard 🔴 35:28"
+        assert output.count('Easy 🟢 1:25') == 1
+        assert output.count('Medium 🟡 5:52') == 1
+        assert output.count('Hard 🔴 35:28') == 1
+        # Should be combined with pipes
+        assert 'Easy 🟢 1:25 | Medium 🟡 5:52 | Hard 🔴 35:28' in output
+
+
 if __name__ == '__main__':
     print("Running tests manually (install pytest for better output)")
     print("=" * 60)
@@ -621,6 +823,7 @@ if __name__ == '__main__':
         TestStrandsFormatter,
         TestPipsFormatter,
         TestPipsAggregation,
+        TestDeduplication,
         TestFormatterRegistry,
         TestEdgeCases,
         TestFullPipeline,
