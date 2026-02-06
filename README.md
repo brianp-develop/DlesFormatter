@@ -80,7 +80,6 @@ For the best experience on Windows, create a dedicated Windows Terminal profile:
 1. Open Windows Terminal settings (Ctrl+,)
 2. Click **"+ New profile"** button
 3. Set command line to run `formatter.py` directly
-4. **Important**: Turn OFF "Warn when pasting multiple lines" in Advanced settings
 
 See [WINDOWS_COMPATIBILITY.md Method 4](WINDOWS_COMPATIBILITY.md#method-4-windows-terminal-custom-profile-recommended) for step-by-step instructions.
 

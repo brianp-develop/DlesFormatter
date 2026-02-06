@@ -260,12 +260,8 @@ Create a dedicated Windows Terminal profile that launches the formatter directly
    - **Command line**: `python %USERPROFILE%\source\DlesFormatter\formatter.py`
    - **Starting directory**: `%USERPROFILE%\source\DlesFormatter`
    - **Icon**: 🧩 (optional - paste the emoji or browse for an icon)
-5. Scroll down to **Advanced** settings
-6. Find "Warn when pasting multiple lines" and **toggle it OFF**
-   - This is the equivalent of `"multiLinePasteWarning": false` in JSON
-   - **Critical for daily use**: Without this, Windows Terminal shows a warning every time you paste puzzle results
-7. Click "Save" in the bottom-right
-8. Your new profile will appear in the dropdown menu!
+5. Click "Save" in the bottom-right
+6. Your new profile will appear in the dropdown menu!
 
 #### Alternative: Manual JSON Method (Advanced)
 
@@ -282,7 +278,6 @@ If you prefer to edit the JSON directly:
     "commandline": "python %USERPROFILE%\\source\\DlesFormatter\\formatter.py",
     "startingDirectory": "%USERPROFILE%\\source\\DlesFormatter",
     "icon": "🧩",
-    "multiLinePasteWarning": false,
     "colorScheme": "Campbell",
     "font": {
         "face": "Cascadia Mono",
@@ -300,9 +295,6 @@ If you prefer to edit the JSON directly:
   - More portable than hardcoding the full path
   - Use double backslashes `\\` in JSON
   - Adjust the path after `%USERPROFILE%` if you installed elsewhere
-- **`multiLinePasteWarning: false`**: **Important!** Disables the warning when pasting multiple lines
-  - Without this, Windows Terminal shows a warning every time you paste puzzle results
-  - Makes the workflow much smoother for daily use
 - **`startingDirectory`**: Sets the working directory to the project folder
 - **`icon`**: Optional - adds 🧩 emoji to profile tab for easy identification
 - **`font`**: Optional - ensures emoji display correctly
@@ -316,7 +308,6 @@ If you prefer to edit the JSON directly:
 #### Benefits
 
 - **One-click access**: No need to navigate to directory or type commands
-- **No paste warnings**: Seamless pasting experience with `multiLinePasteWarning: false`
 - **Dedicated terminal**: Clean, purpose-built environment for puzzle formatting
 - **Professional setup**: Shows in your profile list with custom icon
 
