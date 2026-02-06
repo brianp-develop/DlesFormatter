@@ -18,6 +18,7 @@ A Python tool that collates and formats daily puzzle results (Wordle, Framed, Qu
 - **Quolture** - Movie/TV quote trivia
 - **Wordle** - Daily word puzzle
 - **Connections** - NYT word grouping puzzle
+- **Strands** - NYT word-finding puzzle
 
 ## Installation
 
@@ -130,6 +131,18 @@ Wordle 1,692 4/6
 
 https://www.nytimes.com/games/wordle
 
+Connections
+Puzzle #970
+🟦🟦🟦🟦
+🟪🟪🟪🟪
+🟩🟩🟩🟩
+🟨🟨🟨🟨
+
+Strands #705
+"Let's face it"
+🟡🔵🔵🔵
+🔵🔵🔵🔵
+
 "Quolture"  1447  ⭐️3
 
 🎬: ⬜️⬜️5️⃣
@@ -153,6 +166,16 @@ Wordle 1,692 4/6
 ⬛⬛⬛⬛⬛
 🟩🟨🟩⬛⬛
 🟩🟩🟩🟩🟩
+
+Connections #970
+🟦🟦🟦🟦
+🟪🟪🟪🟪
+🟩🟩🟩🟩
+🟨🟨🟨🟨
+
+Strands #705
+"Let's face it"
+🟡🔵🔵🔵🔵🔵🔵🔵
 ```
 
 ## Configuration
@@ -165,7 +188,9 @@ Edit `config.json` to customize puzzle ordering:
     "framed_regular",
     "framed_oneframe",
     "quolture",
-    "wordle"
+    "wordle",
+    "connections",
+    "strands"
   ]
 }
 ```

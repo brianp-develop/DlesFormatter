@@ -103,6 +103,65 @@ Wordle 1,692 4/6
 
 ---
 
+## Connections
+
+### Input
+```
+Connections
+Puzzle #970
+🟦🟦🟦🟦
+🟪🟪🟪🟪
+🟩🟩🟩🟩
+🟨🟨🟨🟨
+```
+
+### Output
+```
+Connections #970
+🟦🟦🟦🟦
+🟪🟪🟪🟪
+🟩🟩🟩🟩
+🟨🟨🟨🟨
+```
+
+### Formatting Rules
+- Keep multi-line structure
+- Combine "Connections" and "Puzzle #N" into single title line "Connections #N"
+- Grid lines preserve their structure (one line per category)
+- No URL (Connections doesn't include one)
+- Multi-line output (like Wordle)
+
+---
+
+## Strands
+
+### Input
+```
+Strands #705
+"Let's face it"
+🟡🔵🔵🔵
+🔵🔵🔵🔵
+```
+
+### Output
+```
+Strands #705
+"Let's face it"
+🟡🔵🔵🔵🔵🔵🔵🔵
+```
+
+### Formatting Rules
+- Keep multi-line structure (3 lines total)
+- Title on first line
+- Theme (in quotes) on second line
+- Collapse all emoji rows to single line on third line
+- Always has 7 blue dots (🔵) + 1 yellow dot (🟡)
+- May include hint bulbs (💡) which are preserved
+- No URL (Strands doesn't include one)
+- Multi-line output (like Wordle and Connections)
+
+---
+
 ## Mixed Input Examples
 
 ### Example 1: All Puzzles in Wrong Order
@@ -316,9 +375,9 @@ https://www.quolture.com
    - No blank lines between them
    - Appear consecutively
 
-2. **Multi-line puzzles** (Wordle):
-   - Blank line added **before** Wordle if there are previous puzzles
-   - No blank line if Wordle is the only puzzle
+2. **Multi-line puzzles** (Wordle, Connections, Strands):
+   - Blank line added **before** each multi-line puzzle if there are previous puzzles
+   - No blank line if the puzzle is first or only
 
 ### Ordering
 
@@ -326,8 +385,12 @@ Puzzles always appear in this order (defined in `config.json`):
 1. Framed (regular)
 2. Framed - One Frame Challenge
 3. Quolture
-4. [blank line if Wordle is present]
+4. [blank line if multi-line puzzle follows]
 5. Wordle
+6. [blank line if another multi-line puzzle follows]
+7. Connections
+8. [blank line if another multi-line puzzle follows]
+9. Strands
 
 **Missing puzzles are simply skipped** - the order is maintained for puzzles that are present.
 
@@ -345,4 +408,15 @@ All `https://...` lines are automatically removed from output.
   ```
   Wordle 1,692 4/6
   🟩⬛🟩⬛⬛
+  ```
+- **Connections**: Title on separate line, grid below
+  ```
+  Connections #970
+  🟦🟦🟦🟦
+  ```
+- **Strands**: Title and theme on separate lines, collapsed emoji grid below
+  ```
+  Strands #705
+  "Let's face it"
+  🟡🔵🔵🔵🔵🔵🔵🔵
   ```
