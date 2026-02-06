@@ -237,215 +237,68 @@ def process_puzzle_results(input_text: str) -> str:
     return output
 
 
-def _is_wordle_complete(lines: List[str]) -> bool:
+def interactive_mode():
     """
-    Check if a Wordle puzzle is complete (6 emoji rows = max attempts used).
+    Interactive mode: Read puzzles from clipboard one at a time.
 
-    Wordle allows a maximum of 6 guesses. If the user pastes 6 rows of emoji
-    squares (🟩🟨⬛⬜), the puzzle is complete even without an all-green row,
-    meaning they failed to solve it within the attempt limit.
-
-    This complements the end_marker_pattern check (which detects all-green rows)
-    to handle both successful solves and failed attempts.
-
-    Args:
-        lines: List of input lines accumulated so far
-
-    Returns:
-        True if 6 or more Wordle emoji rows are present
-    """
-    wordle_emoji_pattern = r'^[🟩🟨⬛⬜]{5}$'
-    emoji_rows = [line for line in lines if re.match(wordle_emoji_pattern, line.strip())]
-    return len(emoji_rows) >= 6
-
-
-def _is_connections_complete(lines: List[str]) -> bool:
-    """
-    Check if a Connections puzzle is complete using solid/mixed row logic.
-
-    Connections puzzles involve grouping 16 words into 4 categories. Each correct
-    category shows as a row of 4 same-colored emojis (solid row). Wrong attempts
-    show mixed colors (mixed row).
-
-    Game completion rules:
-    - Solved successfully: 4 solid rows (perfect categories) + 0-3 mixed rows (mistakes)
-    - Failed to solve: 4+ mixed rows (too many mistakes) + 0-2 solid rows
-
-    This detection cannot use a simple end_marker_pattern because there's no URL
-    and completion depends on counting row types, not matching a single pattern.
-
-    Args:
-        lines: List of input lines accumulated so far
-
-    Returns:
-        True if puzzle shows completion pattern (4 solid or 4 mixed rows)
-    """
-    connections_emoji_pattern = r'^[🟦🟪🟩🟨]{4}$'
-    connections_rows = [line for line in lines if re.match(connections_emoji_pattern, line.strip())]
-
-    if len(connections_rows) < 4:
-        return False
-
-    # Count solid rows (all 4 emojis same color = correct category)
-    # Count mixed rows (different colors = wrong attempt)
-    solid_rows = 0
-    mixed_rows = 0
-
-    for row in connections_rows:
-        emojis = list(row.strip())
-        if len(set(emojis)) == 1:  # All same emoji = solid row
-            solid_rows += 1
-        else:
-            mixed_rows += 1
-
-    # Complete if: 4 solid + (0-3 mixed), OR 4 mixed + (0-2 solid)
-    return (solid_rows >= 4 and mixed_rows <= 3) or (mixed_rows >= 4 and solid_rows <= 2)
-
-
-def _is_strands_complete(lines: List[str]) -> bool:
-    """
-    Check if a Strands puzzle is complete by counting emoji.
-
-    Strands puzzles always have exactly 8 emoji total:
-    - 7 blue dots (🔵) representing found words
-    - 1 yellow dot (🟡) representing the spangram
-    - Optional hint bulbs (💡) that don't count toward completion
-
-    Unlike most puzzles, Strands has no URL for end detection, so we must
-    count emoji to determine completion. Once we see 7 blue + 1 yellow,
-    the puzzle is complete.
-
-    Args:
-        lines: List of input lines accumulated so far
-
-    Returns:
-        True if puzzle shows 7 blue + 1 yellow emoji (8 total)
-    """
-    strands_emoji_pattern = r'^[🔵🟡💡]+$'
-    emoji_lines = [line for line in lines if re.match(strands_emoji_pattern, line.strip())]
-
-    if not emoji_lines:
-        return False
-
-    # Count blue and yellow emoji across all lines
-    all_emoji = ''.join(emoji_lines)
-    blue_count = all_emoji.count('🔵')
-    yellow_count = all_emoji.count('🟡')
-
-    # Complete when we have exactly 7 blue + 1 yellow = 8 total
-    # (Ignore lightbulbs as they're hints, not part of completion)
-    return blue_count == 7 and yellow_count == 1
-
-
-def check_puzzle_complete(lines: List[str]) -> bool:
-    """
-    Check if accumulated lines contain a complete puzzle.
-
-    Detection strategies:
-    1. Generic URL-based: Most puzzles end with a URL (Framed, Quolture)
-    2. Pattern-based: Some use special markers (Wordle all-green row)
-    3. Special cases: Complex logic for puzzles without clear end markers
-
-    Args:
-        lines: List of input lines accumulated so far
-
-    Returns:
-        True if puzzle completion is detected
-    """
-    from puzzle_formatters import ALL_FORMATTERS
-
-    # Check generic end_marker_patterns (URLs, all-green Wordle row)
-    # This handles: Framed, Framed One Frame, Quolture, and solved Wordle
-    for line in lines:
-        for formatter in ALL_FORMATTERS:
-            if formatter.end_marker_pattern and re.search(formatter.end_marker_pattern, line):
-                return True
-
-    # Check Wordle special case: 6 attempts used (failed to solve)
-    # Needed because unsolved Wordle has no all-green row to match
-    if _is_wordle_complete(lines):
-        return True
-
-    # Check Connections special case: solid/mixed row counting logic
-    # Needed because completion depends on row type analysis, not a single pattern
-    if _is_connections_complete(lines):
-        return True
-
-    # Check Strands special case: count emoji to detect 7 blue + 1 yellow
-    # Needed because Strands has no URL and completion is determined by emoji count
-    if _is_strands_complete(lines):
-        return True
-
-    return False
-
-
-def interactive_mode(): #This mode (the only mode) was given a name because there used to be a "Clipboard mode" that ran from the contents of your clipboard. 
-    """
-    Interactive mode: Accept multiple pastes, keep running until user exits.
-
-    User can paste puzzle results multiple times as they complete them.
-    Press Enter on empty input or Ctrl+C to process and exit.
+    User workflow:
+    1. Complete a puzzle and copy the result (Ctrl+C)
+    2. Press Enter in this terminal to capture it
+    3. Repeat for more puzzles throughout the day
+    4. Press Ctrl+C when done to format all puzzles
     """
     print("=== Puzzle Results Formatter ===")
-    print("Paste your puzzle results below.")
-    print("The script will detect when each puzzle is complete.")
-    print("Press Ctrl+C when all puzzles are entered.")
+    print("1. Complete a puzzle and copy the result (Ctrl+C)")
+    print("2. Press Enter here to capture it")
+    print("3. Repeat for more puzzles")
+    print("4. Press Ctrl+C when done with all puzzles")
     print()
 
-    all_input_lines = []
+    all_puzzles_text = []
 
     try:
         while True:
-            print("Paste puzzle results (or press Enter if done):")
-            lines = []
+            # Wait for Enter keypress
+            input("Press Enter to read from clipboard (or Ctrl+C when done): ")
 
-            # Read lines until we detect a complete puzzle or user signals done
-            while True:
-                try:
-                    line = input()
+            # Read entire clipboard content
+            clipboard_content = pyperclip.paste()
 
-                    # First line empty = user signaling done
-                    if not line.strip() and not lines:
-                        if all_input_lines:
-                            raise EOFError()
-                        else:
-                            continue
-
-                    # Add line (preserve blank lines for formatting)
-                    lines.append(line)
-
-                    # Check if we just received a puzzle end marker
-                    if check_puzzle_complete(lines):
-                        # Found end marker, this paste is complete
-                        print(f"  -> Captured {len(lines)} lines")
-                        break
-
-                    # Blank line without end marker = mid-puzzle, continue
-                    # (This preserves blank lines in puzzles like Framed)
-
-                except EOFError:
-                    raise
-
-            if lines:
-                all_input_lines.extend(lines)
+            # Check if clipboard is empty
+            if not clipboard_content.strip():
+                print("  ⚠ Clipboard is empty - copy a puzzle result first")
                 print()
+                continue
+
+            # Try to identify what puzzle this is
+            formatter = get_formatter_for_text(clipboard_content)
+
+            if formatter:
+                print(f"  ✓ Captured {formatter.puzzle_name.replace('_', ' ').title()}")
+                all_puzzles_text.append(clipboard_content)
+            else:
+                print("  ⚠ Unrecognized puzzle format (will try to process anyway)")
+                all_puzzles_text.append(clipboard_content)
+
+            print()
 
     except (EOFError, KeyboardInterrupt):
         print("\n")
 
-        if not all_input_lines:
-            print("No input received. Exiting.")
+        if not all_puzzles_text:
+            print("No puzzles captured. Exiting.")
             return
 
-        # Process all accumulated input
-        input_text = '\n'.join(all_input_lines)
-        output = process_puzzle_results(input_text)
+        # Process all captured puzzles
+        # Join with double newline to separate puzzles
+        combined_input = '\n\n'.join(all_puzzles_text)
+        output = process_puzzle_results(combined_input)
 
         print("=== Formatted Results ===")
         print(output)
         print()
 
-        # Copy to clipboard
+        # Copy result to clipboard
         try:
             pyperclip.copy(output)
             print("✓ Results copied to clipboard!")

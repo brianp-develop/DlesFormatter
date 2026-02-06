@@ -288,41 +288,6 @@ class TestStrandsFormatter:
         all_emoji = ''.join(result['emoji_lines'])
         assert '💡' in all_emoji
 
-    def test_completion_detection(self):
-        """Should detect completion with 7 blue + 1 yellow emoji."""
-        from formatter import _is_strands_complete
-
-        # Complete puzzle: 7 blue + 1 yellow
-        complete_lines = [
-            "Strands #705",
-            '"Let\'s face it"',
-            "🟡🔵🔵🔵",
-            "🔵🔵🔵🔵"
-        ]
-        assert _is_strands_complete(complete_lines) is True
-
-        # Incomplete puzzle: only 5 blue
-        incomplete_lines = [
-            "Strands #705",
-            '"Let\'s face it"',
-            "🟡🔵🔵🔵",
-            "🔵"
-        ]
-        assert _is_strands_complete(incomplete_lines) is False
-
-    def test_completion_ignores_hints(self):
-        """Should not count hint bulbs toward completion."""
-        from formatter import _is_strands_complete
-
-        # 7 blue + 1 yellow + hints = complete
-        lines_with_hints = [
-            "Strands #706",
-            '"Game on"',
-            "💡🟡🔵🔵",
-            "🔵🔵💡🔵",
-            "🔵🔵"
-        ]
-        assert _is_strands_complete(lines_with_hints) is True
 
 
 class TestFormatterRegistry:
