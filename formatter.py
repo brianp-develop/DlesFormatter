@@ -297,7 +297,7 @@ def format_output(puzzles: List[Dict]) -> str:
         is_multiline = '\n' in formatted
 
         # Add blank line before Wordle if there were previous puzzles
-        if is_multiline and formatted_parts:
+        if (is_multiline or puzzle['puzzle_name'] == 'pips') and formatted_parts:
             formatted_parts.append('')  # Blank line separator
 
         formatted_parts.append(formatted)
