@@ -257,8 +257,8 @@ Create a dedicated Windows Terminal profile that launches the formatter directly
 3. Click "Create a new empty profile"
 4. Configure the profile settings:
    - **Name**: "Puzzle Formatter" (or your preferred name)
-   - **Command line**: `python C:\Users\<username>\source\DlesFormatter\formatter.py`
-   - **Starting directory**: `C:\Users\<username>\source\DlesFormatter`
+   - **Command line**: `python %USERPROFILE%\source\DlesFormatter\formatter.py`
+   - **Starting directory**: `%USERPROFILE%\source\DlesFormatter`
    - **Icon**: 🧩 (optional - paste the emoji or browse for an icon)
 5. Scroll down to **Advanced** settings
 6. Find "Warn when pasting multiple lines" and **toggle it OFF**
@@ -279,8 +279,8 @@ If you prefer to edit the JSON directly:
 ```json
 {
     "name": "Puzzle Formatter",
-    "commandline": "python C:\\Users\\<username>\\source\\DlesFormatter\\formatter.py",
-    "startingDirectory": "C:\\Users\\<username>\\source\\DlesFormatter",
+    "commandline": "python %USERPROFILE%\\source\\DlesFormatter\\formatter.py",
+    "startingDirectory": "%USERPROFILE%\\source\\DlesFormatter",
     "icon": "🧩",
     "multiLinePasteWarning": false,
     "colorScheme": "Campbell",
@@ -291,13 +291,15 @@ If you prefer to edit the JSON directly:
 }
 ```
 
-**Replace `<username>` with your Windows username and adjust the path to match your installation directory.**
+**Adjust the path after `%USERPROFILE%` to match your installation directory** (e.g., if you cloned to a different folder than `\source\DlesFormatter`).
 
 #### Key Settings Explained
 
 - **`commandline`**: Runs the formatter directly when profile launches
+  - Uses `%USERPROFILE%` environment variable (expands to `C:\Users\YourUsername`)
+  - More portable than hardcoding the full path
   - Use double backslashes `\\` in JSON
-  - Adjust path to match your installation directory
+  - Adjust the path after `%USERPROFILE%` if you installed elsewhere
 - **`multiLinePasteWarning: false`**: **Important!** Disables the warning when pasting multiple lines
   - Without this, Windows Terminal shows a warning every time you paste puzzle results
   - Makes the workflow much smoother for daily use
