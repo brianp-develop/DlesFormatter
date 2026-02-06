@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(tree:*)",
+      "Bash(findstr:*)",
+      "Bash(pip install:*)",
+      "Bash(python -m pip install:*)",
+      "Bash(python tests/test_formatter.py:*)",
+      "Bash(python:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd end_marker_pattern to puzzle formatters\n\n- Add end_marker_pattern attribute to BasePuzzleFormatter\n- Define URL patterns for Framed and Quolture formatters\n- Define all-green pattern for Wordle formatter\n- Prepares for deterministic puzzle completion detection\n\nPart of fixing interactive mode input handling bug.\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nFix interactive mode input handling with end markers\n\n- Add check_puzzle_complete\\(\\) helper function\n- Modify interactive_mode\\(\\) to use end marker detection\n- Handle Wordle special case \\(6 emoji rows or all-green\\)\n- Fixes bug where blank lines in puzzles caused premature input breaks\n\nResolves issue where Framed puzzles were split at blank lines.\nPuzzles now complete deterministically when end markers are detected.\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nUpdate docs for new interactive mode behavior\n\n- Update README.md to reflect automatic completion detection\n- Add end_marker_pattern explanation to ADDING_PUZZLES.md\n- Remove references to \"press Enter on empty input\"\n- Clarify that puzzles complete automatically when end marker detected\n- Document blank lines preservation within puzzles\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd bug fix implementation summary\n\nDocuments the interactive mode bug fix including:\n- Problem description and solution approach\n- Implementation details by phase\n- Testing verification results\n- Git commit history\n- Files changed summary\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(powershell -Command:*)",
+      "Bash(git commit:*)",
+      "Bash(find:*)"
+    ]
+  }
+}
