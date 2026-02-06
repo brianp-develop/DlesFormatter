@@ -20,6 +20,7 @@ from puzzle_formatters import (
     FramedFormatter,
     FramedOneFrameFormatter,
     QuoltureFormatter,
+    StrandsFormatter,
     WordleFormatter,
     get_formatter_for_text
 )
@@ -65,6 +66,17 @@ Puzzle #971
 🟪🟪🟪🟪
 🟩🟩🟩🟩
 🟨🟨🟨🟨"""
+
+STRANDS_INPUT = """Strands #705
+"Let's face it"
+🟡🔵🔵🔵
+🔵🔵🔵🔵"""
+
+STRANDS_WITH_HINTS_INPUT = """Strands #706
+"Game on"
+💡🟡🔵🔵
+🔵🔵💡🔵
+🔵🔵"""
 
 
 class TestFramedFormatter:
@@ -234,6 +246,85 @@ class TestConnectionsFormatter:
         assert isinstance(formatter, ConnectionsFormatter)
 
 
+class TestStrandsFormatter:
+    """Tests for StrandsFormatter."""
+
+    def test_can_parse_valid_input(self):
+        """Should detect valid Strands puzzle."""
+        formatter = StrandsFormatter()
+        assert formatter.can_parse(STRANDS_INPUT) is True
+
+    def test_parse_extracts_components(self):
+        """Should extract puzzle number, theme, and emoji lines."""
+        formatter = StrandsFormatter()
+        result = formatter.parse(STRANDS_INPUT)
+
+        assert result is not None
+        assert result['puzzle_number'] == '705'
+        assert result['theme'] == '"Let\'s face it"'
+        assert len(result['emoji_lines']) == 2
+
+    def test_format_collapses_emoji_grid(self):
+        """Should collapse multi-line emoji grid to single line."""
+        formatter = StrandsFormatter()
+        data = formatter.parse(STRANDS_INPUT)
+        output = formatter.format(data)
+
+        lines = output.strip().split('\n')
+        assert len(lines) == 3  # Title, theme, emoji line
+        assert lines[0] == 'Strands #705'
+        assert lines[1] == '"Let\'s face it"'
+        assert lines[2] == '🟡🔵🔵🔵🔵🔵🔵🔵'
+        assert '🟡' in lines[2]
+        assert lines[2].count('🔵') == 7
+
+    def test_handles_hints(self):
+        """Should handle hint bulbs (💡) in emoji grid."""
+        formatter = StrandsFormatter()
+        result = formatter.parse(STRANDS_WITH_HINTS_INPUT)
+
+        assert result is not None
+        # Hints should be preserved in emoji lines
+        all_emoji = ''.join(result['emoji_lines'])
+        assert '💡' in all_emoji
+
+    def test_completion_detection(self):
+        """Should detect completion with 7 blue + 1 yellow emoji."""
+        from formatter import _is_strands_complete
+
+        # Complete puzzle: 7 blue + 1 yellow
+        complete_lines = [
+            "Strands #705",
+            '"Let\'s face it"',
+            "🟡🔵🔵🔵",
+            "🔵🔵🔵🔵"
+        ]
+        assert _is_strands_complete(complete_lines) is True
+
+        # Incomplete puzzle: only 5 blue
+        incomplete_lines = [
+            "Strands #705",
+            '"Let\'s face it"',
+            "🟡🔵🔵🔵",
+            "🔵"
+        ]
+        assert _is_strands_complete(incomplete_lines) is False
+
+    def test_completion_ignores_hints(self):
+        """Should not count hint bulbs toward completion."""
+        from formatter import _is_strands_complete
+
+        # 7 blue + 1 yellow + hints = complete
+        lines_with_hints = [
+            "Strands #706",
+            '"Game on"',
+            "💡🟡🔵🔵",
+            "🔵🔵💡🔵",
+            "🔵🔵"
+        ]
+        assert _is_strands_complete(lines_with_hints) is True
+
+
 class TestFormatterRegistry:
     """Tests for formatter auto-detection."""
 
@@ -368,6 +459,40 @@ class TestFullPipeline:
         assert '\n\nWordle' in output_text
         assert '\n\nConnections' in output_text
 
+    def test_strands_in_mixed_input(self):
+        """Should detect and format Strands among other puzzles."""
+        from formatter import detect_and_parse_puzzles, sort_puzzles_by_config, format_output, load_config
+
+        mixed_input = f"""{WORDLE_INPUT}
+
+{CONNECTIONS_INPUT}
+
+{STRANDS_INPUT}"""
+
+        config = load_config()
+        puzzles = detect_and_parse_puzzles(mixed_input)
+
+        # Should find all 3 puzzles
+        puzzle_names = [p['puzzle_name'] for p in puzzles]
+        assert 'strands' in puzzle_names
+        assert 'wordle' in puzzle_names
+        assert 'connections' in puzzle_names
+
+        # Strands should come after Connections in config order
+        sorted_puzzles = sort_puzzles_by_config(puzzles, config['puzzle_order'])
+        sorted_names = [p['puzzle_name'] for p in sorted_puzzles]
+        strands_idx = sorted_names.index('strands')
+        connections_idx = sorted_names.index('connections')
+        assert strands_idx > connections_idx
+
+        # Format output
+        output = format_output(sorted_puzzles)
+
+        # Strands should be multi-line with blank line separator before it
+        assert 'Strands #705' in output
+        assert '"Let\'s face it"' in output
+        assert '\n\nStrands' in output  # Blank line before Strands
+
 
 if __name__ == '__main__':
     print("Running tests manually (install pytest for better output)")
@@ -380,6 +505,7 @@ if __name__ == '__main__':
         TestQuoltureFormatter,
         TestWordleFormatter,
         TestConnectionsFormatter,
+        TestStrandsFormatter,
         TestFormatterRegistry,
         TestEdgeCases,
         TestFullPipeline,
