@@ -479,8 +479,9 @@ def interactive_mode():
             print("\n")
 
             if not all_puzzles_text:
-                print("No puzzles captured. Exiting.")
-                return
+                print("No puzzles captured yet.")
+                print()
+                continue  # Return to outer loop instead of exiting
 
             # Process all captured puzzles
             # Join with double newline to separate puzzles
@@ -498,8 +499,9 @@ def interactive_mode():
             except Exception as e:
                 print(f"Note: Could not copy to clipboard: {e}")
 
-            print("\nPaste into Teams and share your results!")
-            input("Press Enter to exit.")
+            print("\nResults ready to paste! Continue adding puzzles or type 'quit' to exit.")
+            print()
+            # Continue to outer loop - don't exit!
 
 
 def main():
