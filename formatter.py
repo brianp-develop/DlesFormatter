@@ -443,57 +443,58 @@ def interactive_mode():
 
     all_puzzles_text = []
 
-    try:
-        while True:
-            # Wait for Enter keypress
-            input("Press Enter to read from clipboard (or Ctrl+C when done): ")
+    while True:  # Outer loop - runs until quit
+        try:
+            while True:  # Inner loop - captures puzzles until Ctrl+C
+                # Wait for Enter keypress
+                input("Press Enter to read from clipboard (or Ctrl+C when done): ")
 
-            # Read entire clipboard content
-            clipboard_content = pyperclip.paste()
+                # Read entire clipboard content
+                clipboard_content = pyperclip.paste()
 
-            # Check if clipboard is empty
-            if not clipboard_content.strip():
-                print("  ⚠ Clipboard is empty - copy a puzzle result first")
+                # Check if clipboard is empty
+                if not clipboard_content.strip():
+                    print("  ⚠ Clipboard is empty - copy a puzzle result first")
+                    print()
+                    continue
+
+                # Try to identify what puzzle this is
+                formatter = get_formatter_for_text(clipboard_content)
+
+                if formatter:
+                    print(f"  ✓ Captured {formatter.puzzle_name.replace('_', ' ').title()}")
+                    all_puzzles_text.append(clipboard_content)
+                else:
+                    print("  ⚠ Unrecognized puzzle format (will try to process anyway)")
+                    all_puzzles_text.append(clipboard_content)
+
                 print()
-                continue
 
-            # Try to identify what puzzle this is
-            formatter = get_formatter_for_text(clipboard_content)
+        except (EOFError, KeyboardInterrupt):
+            print("\n")
 
-            if formatter:
-                print(f"  ✓ Captured {formatter.puzzle_name.replace('_', ' ').title()}")
-                all_puzzles_text.append(clipboard_content)
-            else:
-                print("  ⚠ Unrecognized puzzle format (will try to process anyway)")
-                all_puzzles_text.append(clipboard_content)
+            if not all_puzzles_text:
+                print("No puzzles captured. Exiting.")
+                return
 
+            # Process all captured puzzles
+            # Join with double newline to separate puzzles
+            combined_input = '\n\n'.join(all_puzzles_text)
+            output = process_puzzle_results(combined_input)
+
+            print("=== Formatted Results ===")
+            print(output)
             print()
 
-    except (EOFError, KeyboardInterrupt):
-        print("\n")
+            # Copy result to clipboard
+            try:
+                pyperclip.copy(output)
+                print("✓ Results copied to clipboard!")
+            except Exception as e:
+                print(f"Note: Could not copy to clipboard: {e}")
 
-        if not all_puzzles_text:
-            print("No puzzles captured. Exiting.")
-            return
-
-        # Process all captured puzzles
-        # Join with double newline to separate puzzles
-        combined_input = '\n\n'.join(all_puzzles_text)
-        output = process_puzzle_results(combined_input)
-
-        print("=== Formatted Results ===")
-        print(output)
-        print()
-
-        # Copy result to clipboard
-        try:
-            pyperclip.copy(output)
-            print("✓ Results copied to clipboard!")
-        except Exception as e:
-            print(f"Note: Could not copy to clipboard: {e}")
-
-        print("\nPaste into Teams and share your results!")
-        input("Press Enter to exit.")
+            print("\nPaste into Teams and share your results!")
+            input("Press Enter to exit.")
 
 
 def main():
