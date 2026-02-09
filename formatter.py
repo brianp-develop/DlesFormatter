@@ -432,13 +432,15 @@ def interactive_mode():
     1. Complete a puzzle and copy the result (Ctrl+C)
     2. Press Enter in this terminal to capture it
     3. Repeat for more puzzles throughout the day
-    4. Press Ctrl+C when done to format all puzzles
+    4. Press Ctrl+C to format and copy all captured puzzles
+    5. Continue adding more puzzles or type 'quit' to exit
     """
     print("=== Puzzle Results Formatter ===")
     print("1. Complete a puzzle and copy the result (Ctrl+C)")
     print("2. Press Enter here to capture it")
     print("3. Repeat for more puzzles")
-    print("4. Press Ctrl+C when done with all puzzles")
+    print("4. Press Ctrl+C to format all puzzles and copy to clipboard")
+    print("5. Continue adding puzzles or type 'quit' to exit")
     print()
 
     all_puzzles_text = []
