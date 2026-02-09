@@ -446,8 +446,13 @@ def interactive_mode():
     while True:  # Outer loop - runs until quit
         try:
             while True:  # Inner loop - captures puzzles until Ctrl+C
-                # Wait for Enter keypress
-                input("Press Enter to read from clipboard (or Ctrl+C when done): ")
+                # Wait for Enter keypress or quit command
+                user_input = input("Press Enter to capture (or type 'quit' to exit): ").strip().lower()
+
+                # Check for quit command
+                if user_input == 'quit':
+                    print("Exiting...")
+                    return
 
                 # Read entire clipboard content
                 clipboard_content = pyperclip.paste()
