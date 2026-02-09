@@ -34,7 +34,6 @@ class StrandsFormatter(BasePuzzleFormatter):
 
     puzzle_name = "strands"
     detection_pattern = r"Strands #\d+"
-    end_marker_pattern = ""  # Uses content-based detection only
 
     def can_parse(self, text: str) -> bool:
         """

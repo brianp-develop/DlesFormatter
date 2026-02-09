@@ -34,7 +34,6 @@ class WordleFormatter(BasePuzzleFormatter):
 
     puzzle_name = "wordle"
     detection_pattern = r"Wordle \d+[,\d]* \d+/\d+"
-    end_marker_pattern = r"🟩🟩🟩🟩🟩"  # All-green row indicates successful solve
 
     def can_parse(self, text: str) -> bool:
         """Check if text contains Wordle puzzle."""

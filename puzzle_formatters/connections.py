@@ -14,7 +14,6 @@ class ConnectionsFormatter(BasePuzzleFormatter):
 
     puzzle_name = "connections"
     detection_pattern = r"Connections\s*\nPuzzle #\d+"
-    end_marker_pattern = ""  # Uses content-based detection only
 
     def can_parse(self, text: str) -> bool:
         """

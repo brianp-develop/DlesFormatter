@@ -83,9 +83,6 @@ class [PuzzleName]Formatter(BasePuzzleFormatter):
     # Regex pattern to detect this puzzle
     detection_pattern = r"Pattern to match puzzle title"
 
-    # Regex pattern indicating puzzle completion (for interactive mode)
-    end_marker_pattern = r"Pattern to match completion indicator"
-
     def can_parse(self, text: str) -> bool:
         """Check if text contains [Puzzle Name] puzzle."""
         return bool(re.search(self.detection_pattern, text))
@@ -382,7 +379,6 @@ class ConnectionsFormatter(BasePuzzleFormatter):
 
     puzzle_name = "connections"
     detection_pattern = r"Connections\s+Puzzle #\d+"
-    end_marker_pattern = r"https://www\.nytimes\.com/games/connections"
 
     def can_parse(self, text: str) -> bool:
         """Check if text contains Connections puzzle."""

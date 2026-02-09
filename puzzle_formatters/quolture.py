@@ -28,7 +28,6 @@ class QuoltureFormatter(BasePuzzleFormatter):
 
     puzzle_name = "quolture"
     detection_pattern = r'"Quolture"\s+\d+'
-    end_marker_pattern = r"https://www\.quolture\.com"  # URL indicates puzzle completion
 
     def can_parse(self, text: str) -> bool:
         """Check if text contains Quolture puzzle."""

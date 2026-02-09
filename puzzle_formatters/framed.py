@@ -26,7 +26,6 @@ class FramedFormatter(BasePuzzleFormatter):
 
     puzzle_name = "framed_regular"
     detection_pattern = r"Framed #\d+"
-    end_marker_pattern = r"https://framed\.wtf"  # URL indicates puzzle completion
 
     def can_parse(self, text: str) -> bool:
         """Check if text contains regular Framed puzzle (not One Frame variant)."""
@@ -87,7 +86,6 @@ class FramedOneFrameFormatter(BasePuzzleFormatter):
 
     puzzle_name = "framed_oneframe"
     detection_pattern = r"Framed - One Frame Challenge #\d+"
-    end_marker_pattern = r"https://framed\.wtf"  # URL indicates puzzle completion
 
     def can_parse(self, text: str) -> bool:
         """Check if text contains One Frame variant of Framed."""

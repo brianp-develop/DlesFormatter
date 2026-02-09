@@ -15,7 +15,6 @@ class WaffleFormatter(BasePuzzleFormatter):
 
     puzzle_name = "waffle"
     detection_pattern = r"#waffle\d+ \d+/5"
-    end_marker_pattern = ""  # Uses content-based detection
 
     def can_parse(self, text: str) -> bool:
         """Check if text contains Waffle puzzle."""
