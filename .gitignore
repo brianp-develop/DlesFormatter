@@ -42,5 +42,5 @@ htmlcov/
 # Scratchpad
 scratchpad/
 
-#Claude
-.claude
+#Claude local settings
+settings.local.json
