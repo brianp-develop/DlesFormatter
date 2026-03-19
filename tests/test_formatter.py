@@ -19,6 +19,7 @@ from puzzle_formatters import (
     ConnectionsFormatter,
     FramedFormatter,
     FramedOneFrameFormatter,
+    NumbleFormatter,
     PipsFormatter,
     QuoltureFormatter,
     StrandsFormatter,
@@ -138,6 +139,63 @@ WAFFLE_MANY_BLANKS = """#waffle1479 2/5
 
 
 wafflegame.net"""
+
+
+NUMBLE_INPUT = """#numble9 0/5
+
+
+
+🟩🟩🟩🟩🟩🟩🟩
+🟩⬜🟩⬜🟩⬜🟩
+🟩🟩🟩🟩🟩🟩🟩
+🟩⬜🟩⬜🟩⬜🟩
+🟩🟩🟩🟩🟩🟩🟩
+🟩⬜🟩⬜🟩⬜🟩
+🟩🟩🟩🟩🟩🟩🟩
+
+
+
+🔥 streak: 3
+
+wafflegame.net/numberwaffle"""
+
+NUMBLE_NO_STREAK = """#numble10 2/5
+
+🟩🟩🟩🟩🟩🟩🟩
+🟩⬜🟩⬜🟩⬜🟩
+🟩🟩🟩🟩🟩🟩🟩
+🟩⬜🟩⬜🟩⬜🟩
+🟩🟩⭐🟩🟩🟩🟩
+🟩⬜🟩⬜🟩⬜🟩
+🟩🟩🟩🟩🟩🟩🟩
+
+wafflegame.net/numberwaffle"""
+
+NUMBLE_MANY_BLANKS = """#numble11 1/5
+
+
+
+
+🟩🟩🟩🟩🟩🟩🟩
+🟩⬜🟩⬜🟩⬜🟩
+
+
+🟩🟩🟩🟩🟩🟩🟩
+
+
+🟩⬜🟩⬜🟩⬜🟩
+🟩🟩🟩🟩🟩🟩🟩
+🟩⬜🟩⬜🟩⬜🟩
+🟩🟩🟩🟩🟩🟩🟩
+
+
+
+
+🔥 streak: 1
+
+
+
+wafflegame.net/numberwaffle"""
 
 
 class TestFramedFormatter:
@@ -629,6 +687,121 @@ wafflegame.net"""
         assert '\n\n#waffle' in output
 
 
+class TestNumbleFormatter:
+    """Tests for NumbleFormatter."""
+
+    def test_can_parse_valid_input(self):
+        """Should detect valid Numble puzzle."""
+        formatter = NumbleFormatter()
+        assert formatter.can_parse(NUMBLE_INPUT) is True
+
+    def test_can_parse_no_streak(self):
+        """Should detect Numble without streak info."""
+        formatter = NumbleFormatter()
+        assert formatter.can_parse(NUMBLE_NO_STREAK) is True
+
+    def test_can_parse_many_blanks(self):
+        """Should detect Numble with excessive blank lines."""
+        formatter = NumbleFormatter()
+        assert formatter.can_parse(NUMBLE_MANY_BLANKS) is True
+
+    def test_parse_extracts_components(self):
+        """Should extract title, puzzle number, grid, and streak."""
+        formatter = NumbleFormatter()
+        result = formatter.parse(NUMBLE_INPUT)
+
+        assert result is not None
+        assert result['title'] == '#numble9 0/5'
+        assert result['puzzle_number'] == '9'
+        assert len(result['grid_lines']) == 7
+        assert result['streak_info'] == '🔥 streak: 3'
+
+    def test_parse_no_streak(self):
+        """Should handle missing streak info gracefully."""
+        formatter = NumbleFormatter()
+        result = formatter.parse(NUMBLE_NO_STREAK)
+
+        assert result is not None
+        assert result['title'] == '#numble10 2/5'
+        assert result['puzzle_number'] == '10'
+        assert len(result['grid_lines']) == 7
+        assert result['streak_info'] is None
+
+    def test_parse_validates_grid_size(self):
+        """Should reject input without exactly 7 grid lines."""
+        formatter = NumbleFormatter()
+
+        invalid_input = """#numble9 0/5
+🟩🟩🟩🟩🟩🟩🟩
+🟩⬜🟩⬜🟩⬜🟩
+🟩🟩🟩🟩🟩🟩🟩
+wafflegame.net/numberwaffle"""
+
+        result = formatter.parse(invalid_input)
+        assert result is None
+
+    def test_format_with_streak(self):
+        """Should format with streak info when present."""
+        formatter = NumbleFormatter()
+        data = formatter.parse(NUMBLE_INPUT)
+        output = formatter.format(data)
+
+        lines = output.strip().split('\n')
+        assert len(lines) == 9  # Title + 7 grid + streak
+        assert lines[0] == '#numble9 0/5'
+        assert lines[1] == '🟩🟩🟩🟩🟩🟩🟩'
+        assert lines[8] == '🔥 streak: 3'
+        assert 'wafflegame.net' not in output
+
+    def test_format_without_streak(self):
+        """Should format without streak when absent."""
+        formatter = NumbleFormatter()
+        data = formatter.parse(NUMBLE_NO_STREAK)
+        output = formatter.format(data)
+
+        lines = output.strip().split('\n')
+        assert len(lines) == 8  # Title + 7 grid (no streak)
+        assert lines[0] == '#numble10 2/5'
+        assert 'streak' not in output
+
+    def test_format_removes_blank_lines(self):
+        """Should remove all blank lines from output."""
+        formatter = NumbleFormatter()
+        data = formatter.parse(NUMBLE_MANY_BLANKS)
+        output = formatter.format(data)
+
+        assert '\n\n' not in output
+        lines = output.strip().split('\n')
+        assert all(line.strip() for line in lines)
+
+    def test_format_removes_urls(self):
+        """Should not include URLs in formatted output."""
+        formatter = NumbleFormatter()
+        data = formatter.parse(NUMBLE_INPUT)
+        output = formatter.format(data)
+
+        assert 'wafflegame.net' not in output
+        assert 'http' not in output
+
+    def test_formatter_registry(self):
+        """Should be registered and detectable by registry."""
+        formatter = get_formatter_for_text(NUMBLE_INPUT)
+        assert isinstance(formatter, NumbleFormatter)
+
+    def test_format_multiline_with_separator(self):
+        """Should add blank line separator before Numble in multi-puzzle output."""
+        from formatter import process_puzzle_results
+
+        mixed_input = f"""{FRAMED_INPUT}
+
+{NUMBLE_INPUT}"""
+
+        output = process_puzzle_results(mixed_input)
+
+        # Should have blank line before Numble (multi-line puzzle)
+        assert '\n\n#numble' in output
+
+
 class TestFormatterRegistry:
     """Tests for formatter auto-detection."""
 
@@ -832,6 +1005,39 @@ class TestFullPipeline:
         assert '\n\n#waffle' in output  # Blank line before Waffle
 
 
+    def test_numble_in_mixed_input(self):
+        """Should detect and format Numble among other puzzles."""
+        from formatter import detect_and_parse_puzzles, sort_puzzles_by_config, format_output, load_config
+
+        mixed_input = f"""{WORDLE_INPUT}
+
+{WAFFLE_INPUT}
+
+{NUMBLE_INPUT}"""
+
+        config = load_config()
+        puzzles = detect_and_parse_puzzles(mixed_input)
+
+        # Should find all 3 puzzles
+        puzzle_names = [p['puzzle_name'] for p in puzzles]
+        assert 'numble' in puzzle_names
+        assert 'wordle' in puzzle_names
+        assert 'waffle' in puzzle_names
+
+        # Numble should come after Waffle
+        sorted_puzzles = sort_puzzles_by_config(puzzles, config['puzzle_order'])
+        sorted_names = [p['puzzle_name'] for p in sorted_puzzles]
+        numble_idx = sorted_names.index('numble')
+        waffle_idx = sorted_names.index('waffle')
+        assert numble_idx > waffle_idx
+
+        # Verify formatted output
+        output = format_output(sorted_puzzles)
+        assert '#numble9 0/5' in output
+        assert '🔥 streak: 3' in output
+        assert '\n\n#numble' in output  # Blank line before Numble
+
+
 class TestDeduplication:
     """Tests for duplicate puzzle detection and removal."""
 
@@ -1015,6 +1221,7 @@ if __name__ == '__main__':
         TestPipsFormatter,
         TestPipsAggregation,
         TestWaffleFormatter,
+        TestNumbleFormatter,
         TestDeduplication,
         TestFormatterRegistry,
         TestEdgeCases,

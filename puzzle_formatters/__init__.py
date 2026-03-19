@@ -11,6 +11,7 @@ from .framed import FramedFormatter, FramedOneFrameFormatter
 from .pips import PipsFormatter
 from .quolture import QuoltureFormatter
 from .strands import StrandsFormatter
+from .numble import NumbleFormatter
 from .waffle import WaffleFormatter
 from .wordle import WordleFormatter
 
@@ -23,6 +24,7 @@ ALL_FORMATTERS = [
     PipsFormatter(),
     QuoltureFormatter(),
     StrandsFormatter(),
+    NumbleFormatter(),
     WaffleFormatter(),
     WordleFormatter(),
 ]
@@ -70,6 +72,7 @@ __all__ = [
     'PipsFormatter',
     'QuoltureFormatter',
     'StrandsFormatter',
+    'NumbleFormatter',
     'WaffleFormatter',
     'WordleFormatter',
     'ALL_FORMATTERS',

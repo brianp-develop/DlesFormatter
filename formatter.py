@@ -88,6 +88,7 @@ def split_into_puzzle_blocks(text: str) -> List[str]:
         r'(?=^Strands\s)',
         r'(?=^Pips\s)',
         r'(?=^#waffle\d+)',
+        r'(?=^#numble\d+)',
     ]
 
     text_with_delimiters = text
@@ -224,6 +225,10 @@ def _get_puzzle_identity(puzzle: Dict) -> tuple:
         return (puzzle_name, data.get('puzzle_number', ''))
 
     elif puzzle_name == 'waffle':
+        # Direct access to puzzle_number
+        return (puzzle_name, data.get('puzzle_number', ''))
+
+    elif puzzle_name == 'numble':
         # Direct access to puzzle_number
         return (puzzle_name, data.get('puzzle_number', ''))
 
