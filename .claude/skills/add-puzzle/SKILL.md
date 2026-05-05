@@ -17,7 +17,7 @@ Before any implementation, you need to collect the required information from the
 
 1. **Raw puzzle example**: "Please paste a raw example of the puzzle results, exactly as copied from the puzzle website/app."
 2. **Desired output format**: "Now paste or describe what the formatted output should look like for that example."
-3. **Output position**: "Where should this puzzle appear in the output order? The current order is: `[list current puzzle_order from config.json]`. Should it go before or after a specific puzzle?"
+3. **Output position**: "Where should this puzzle appear in the output order? The current order is: `[list current puzzle_order from config.json.example]`. Should it go before or after a specific puzzle? Should there be a blank line (`---` marker) separating it from neighbors?"
 4. **Output type**: "Is the output single-line (compact, like Framed/Quolture) or multi-line (preserves grid structure, like Wordle/Connections/Waffle)?"
 5. **Special handling**: "Any special handling needed? For example: multiple variants (like Framed vs One Frame), aggregation across difficulties (like Pips Easy/Medium/Hard), or anything else unusual? If none, just say 'no'."
 
@@ -113,9 +113,11 @@ Edit `puzzle_formatters/__init__.py`:
 2. Add instance to `ALL_FORMATTERS` list (order matters - more specific patterns before broad ones)
 3. Add to `__all__` list
 
-### Step 4: Update config.json
+### Step 4: Update config.json.example
 
-Add the puzzle identifier to `puzzle_order` array at the position the user specified. The identifier MUST match the `puzzle_name` attribute in the formatter class.
+`config.json` is gitignored (per-machine); the committed file is `config.json.example`. Add the puzzle identifier to its `puzzle_order` array at the position the user specified. The identifier MUST match the `puzzle_name` attribute in the formatter class.
+
+If the user wants the new puzzle visually separated from adjacent ones, insert a `"---"` marker before (and/or after) it in `puzzle_order` — `"---"` entries cause `format_output()` to emit a blank line before the next puzzle.
 
 ### Step 5: Update formatter.py
 
@@ -165,7 +167,7 @@ Run `python tests/test_formatter.py` and verify ALL tests pass (existing + new).
 
 Update the user-facing documentation so the new puzzle is discoverable:
 
-- **`README.md`**: Add a bullet for the new puzzle in the **Supported Puzzles** list, and add the puzzle identifier to the example `config.json` snippet (preserve the order from the actual `config.json`).
+- **`README.md`**: Add a bullet for the new puzzle in the **Supported Puzzles** list, and add the puzzle identifier (and any `"---"` marker) to the example `config.json` snippet (preserve the order from `config.json.example`).
 - **`docs/EXAMPLES.md`** (if it exists): Add a short input/output example for the new puzzle, matching the style of existing entries.
 
 Keep entries terse — one line in the supported list, mirroring existing bullets. Do not invent marketing copy.
@@ -175,7 +177,7 @@ Keep entries terse — one line in the supported list, mirroring existing bullet
 Stage all modified and new files with `git add`:
 - `puzzle_formatters/<puzzle_name>.py` (new)
 - `puzzle_formatters/__init__.py` (modified)
-- `config.json` (modified)
+- `config.json.example` (modified — `config.json` is gitignored)
 - `formatter.py` (modified)
 - `tests/test_formatter.py` (modified)
 - `README.md` (modified)
@@ -199,7 +201,7 @@ Report:
 - Follow existing code style exactly (docstrings, spacing, naming)
 - Detection patterns must be SPECIFIC - avoid broad patterns that could match other puzzles
 - Always test that existing tests still pass after changes
-- The `puzzle_name` in the class MUST match the identifier in `config.json`
+- The `puzzle_name` in the class MUST match the identifier in `config.json.example` (and any local `config.json`)
 - Update `README.md` (and `docs/EXAMPLES.md` if it exists) per Step 8; do NOT touch `docs/ADDING_PUZZLES.md` or `docs/ARCHITECTURE.md` unless the user asks
 
 $ARGUMENTS

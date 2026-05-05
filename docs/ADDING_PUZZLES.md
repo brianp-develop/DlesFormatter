@@ -249,7 +249,7 @@ __all__ = [
 
 ## Step 5: Update Configuration
 
-Edit `config.json` to add your puzzle to the ordering:
+Edit **`config.json.example`** (the committed recommended layout) to add your puzzle to the ordering:
 
 ```json
 {
@@ -257,13 +257,18 @@ Edit `config.json` to add your puzzle to the ordering:
     "framed_regular",
     "framed_oneframe",
     "quolture",
+    "---",
     "connections",
     "wordle"
   ]
 }
 ```
 
-**Note:** The identifier here must match the `puzzle_name` in your formatter class.
+`"---"` entries insert a blank line before the next puzzle in the output — add or omit one before your new puzzle depending on whether you want it visually separated.
+
+**Note:** The identifier must match the `puzzle_name` in your formatter class.
+
+`config.json` is gitignored (per-machine), so editing `config.json.example` is what gets committed. If you have a local `config.json` you'll want to add the new identifier there too so the puzzle appears in your preferred position.
 
 ## Step 6: Test Your Formatter
 

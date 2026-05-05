@@ -64,15 +64,17 @@ class BasePuzzleFormatter(ABC):
 6. format_output()                # Final string assembly
 ```
 
-**Key insight**: Configuration (`config.json`) drives output ordering, not code.
+**Key insight**: Configuration (`config.json`) drives output ordering AND blank-line placement, not code. `config.json` is gitignored; `config.json.example` ships the recommended layout. With no `config.json`, `load_config()` returns an empty `puzzle_order`, so puzzles appear in detection order with no blank lines.
 
 ### Output Formatting Rules
 
-**Blank line insertion** (`formatter.py` lines 267-305):
-- Single-line puzzles (Framed, Quolture): No separators between them
-- Multi-line puzzles (Wordle, Connections, Waffle, Strands): Blank line before each (if not first)
-- Pips: Treated as multi-line for separator purposes
-- Result: Compact single-line section at top, then blank line + multi-line section
+**Blank line insertion** is config-driven via `"---"` marker entries in `puzzle_order`:
+- A `"---"` between two puzzle names inserts a blank line before the second puzzle
+- Multiple consecutive `"---"` collapse to one blank line
+- A `"---"` at the start or end of the array is a no-op
+- No marker = puzzles emit back-to-back
+
+`sort_puzzles_by_config()` parses the markers via `_parse_puzzle_order()`, strips them, and annotates each puzzle dict with a `blank_before` flag that `format_output()` reads.
 
 ### Deduplication Logic
 
@@ -108,8 +110,9 @@ Combines in `aggregate_pips_puzzles()` (lines 308-389), sorted by difficulty (Ea
    - Add to `ALL_FORMATTERS` list (order matters!)
    - Add to `__all__` exports
 
-3. Update `config.json`
+3. Update `config.json.example` (the committed recommended layout)
    - Add puzzle identifier to `puzzle_order` array
+   - `config.json` is gitignored — local users with an existing `config.json` will need to add the identifier themselves to see the new puzzle in their preferred position
 
 **See**: `docs/ADDING_PUZZLES.md` for step-by-step guide with examples
 
@@ -122,7 +125,7 @@ Combines in `aggregate_pips_puzzles()` (lines 308-389), sorted by difficulty (Ea
 - Order in `ALL_FORMATTERS` determines precedence for overlapping patterns
 
 ### Interactive Mode Completion
-In interactive mode, puzzle input is read from the clipboard when you press Enter. The input continues to accumulate until you press Ctrl+C, which triggers processing and formatting. There is no automatic completion detection - you control when to process the accumulated puzzles.
+In interactive mode, puzzle input is read from the clipboard when you press Enter. The input continues to accumulate until the user types `done` or presses Ctrl+C, either of which triggers formatting and copies results to clipboard while preserving the accumulated list (so the user can keep adding more captures). There is no automatic completion detection — the user controls when to process. `quit` exits.
 
 ### Multi-line vs Single-line Output
 - **Single-line**: Join title + grid with spaces (Framed, Quolture)
@@ -151,11 +154,12 @@ Outer loop (continues until 'quit')
 
 ## Configuration System
 
-**`config.json`** defines puzzle ordering:
-- `puzzle_order`: Array of puzzle identifiers
+**`config.json`** defines puzzle ordering and blank-line placement. It's **gitignored** (per-machine). `config.json.example` ships the recommended layout — users copy it to `config.json` to start customizing.
+- `puzzle_order`: Array of puzzle identifiers, optionally interleaved with `"---"` markers (insert blank line before next puzzle)
 - Puzzles appear in config order (top to bottom)
-- Unknown puzzles (not in config) append at end
-- Users can customize without code changes
+- Unknown puzzles (not in config) append at end in detection order
+- No `config.json` → empty `puzzle_order` → all puzzles unknown → detection order, no blanks
+- Tests bootstrap `config.json` from `.example` if missing (see top of `tests/test_formatter.py`)
 
 **Identifier matching**: `puzzle_name` in formatter class must match identifier in config.
 
@@ -174,8 +178,9 @@ puzzle_formatters/
 └── wordle.py            # Multi-line grid formatter
 
 formatter.py             # Main CLI + processing pipeline
-config.json              # Puzzle ordering configuration
-tests/test_formatter.py  # 67 tests (unit + integration)
+config.json              # Puzzle ordering + blank-line markers (gitignored, per-machine)
+config.json.example      # Recommended layout, committed
+tests/test_formatter.py  # 103 tests (unit + integration)
 ```
 
 ## Testing Requirements

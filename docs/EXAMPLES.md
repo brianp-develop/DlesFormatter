@@ -284,8 +284,7 @@ Wordle 1,692 4/6
 
 #### Notes
 - Puzzles automatically reordered to: Framed → Quolture → Wordle
-- Blank line before Wordle (multi-line puzzle)
-- No blank lines between single-line puzzles (Framed, Quolture)
+- The blank line before Wordle comes from a `"---"` marker in `config.json.example`'s `puzzle_order` between `quolture` and `wordle`. Remove the marker if you want them flush.
 
 ---
 
@@ -347,7 +346,7 @@ Wordle 1,692 4/6
 
 #### Notes
 - Single puzzle works perfectly
-- No blank line added (only added *before* Wordle when there are previous puzzles)
+- The leading marker (if any) before this puzzle is a no-op when there's no prior output
 
 ---
 
@@ -396,8 +395,7 @@ Wordle 1,692 4/6
 #### Notes
 - All four puzzles present
 - Ordering: Framed → Framed One Frame → Quolture → [blank line] → Wordle
-- Single-line puzzles have no blank lines between them
-- Blank line only before Wordle (the multi-line puzzle)
+- The blank line before Wordle comes from the `"---"` marker between `quolture` and `wordle` in `config.json.example`. Add or remove markers in `config.json` to change spacing.
 
 ---
 
@@ -453,31 +451,39 @@ https://www.quolture.com
 
 ### Spacing Rules
 
-1. **Single-line puzzles** (Framed, Framed One Frame, Quolture):
-   - No blank lines between them
-   - Appear consecutively
+Blank lines between puzzles are fully driven by `"---"` marker entries in `config.json`'s `puzzle_order`. There is no implicit "single vs multi-line" rule.
 
-2. **Multi-line puzzles** (Wordle, Connections, Strands, Waffle):
-   - Blank line added **before** each multi-line puzzle if there are previous puzzles
-   - No blank line if the puzzle is first or only
+- A `"---"` between two puzzle names inserts a blank line before the second
+- Multiple consecutive `"---"` collapse to one blank line
+- A `"---"` at the start or end of the array (or before a puzzle that isn't present in the input) is a no-op
+- No marker = puzzles emit back-to-back
 
 ### Ordering
 
-Puzzles always appear in this order (defined in `config.json`):
+Puzzles appear in the order defined in `config.json` (or `config.json.example` if you haven't customized — see the [Configuration section in README.md](../README.md#configuration)). The recommended layout looks roughly like:
+
 1. Framed (regular)
 2. Framed - One Frame Challenge
-3. Quolture
-4. [blank line if multi-line puzzle follows]
-5. Wordle
-6. [blank line if another multi-line puzzle follows]
-7. Connections
-8. [blank line if another multi-line puzzle follows]
-9. Strands
-10. Pips (combined into single line)
-11. [blank line before Waffle]
-12. Waffle
+3. Framed - Title Shot Challenge
+4. Quolture
+5. *(blank line marker)*
+6. Wordle
+7. *(blank line marker)*
+8. Connections
+9. *(blank line marker)*
+10. Strands
+11. *(blank line marker)*
+12. Pips (combined into single line)
+13. *(blank line marker)*
+14. Waffle
+15. *(blank line marker)*
+16. Numble
+17. *(blank line marker)*
+18. Word Bunny
 
-**Missing puzzles are simply skipped** - the order is maintained for puzzles that are present.
+**Missing puzzles are simply skipped** — markers tied to absent puzzles also drop out, so the spacing remains clean.
+
+Without a `config.json`, puzzles appear in detection order (the order you pasted them) with no blank lines.
 
 ### URL Removal
 
