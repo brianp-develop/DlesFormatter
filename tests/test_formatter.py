@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 """
 Unit tests for puzzle formatters.
 
@@ -5,15 +8,19 @@ Tests individual formatters and the full processing pipeline.
 Run with: python -m pytest tests/test_formatter.py
 """
 
+import os
 import sys
-from pathlib import Path
 
 # Configure stdout for UTF-8 on Windows
 if sys.platform == 'win32':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    if sys.version_info[0] >= 3:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    else:
+        import codecs
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout, errors='replace')
 
 # Add parent directory to path to import puzzle_formatters
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from puzzle_formatters import (
     ConnectionsFormatter,
@@ -35,12 +42,12 @@ from puzzle_formatters import (
 FRAMED_INPUT = """Framed #1427
 🎥 🟥 🟥 🟥 🟥 🟥 🟥
 
-https://framed.wtf"""
+https://framed.wt"""
 
 FRAMED_ONEFRAME_INPUT = """Framed - One Frame Challenge #1427
 🎥 🟥
 
-https://framed.wtf"""
+https://framed.wt"""
 
 FRAMED_TITLESHOT_INPUT = """Framed - Title Shot Challenge #335
 🎥 🟥 🟥 🟩 ⬛ ⬛ ⬛
@@ -583,9 +590,9 @@ class TestPipsAggregation:
         """Should combine two Pips puzzles into single line."""
         from formatter import process_puzzle_results
 
-        mixed_input = f"""{PIPS_EASY_INPUT}
+        mixed_input = """{PIPS_EASY_INPUT}
 
-{PIPS_MEDIUM_INPUT}"""
+{PIPS_MEDIUM_INPUT}""".format(PIPS_EASY_INPUT=PIPS_EASY_INPUT, PIPS_MEDIUM_INPUT=PIPS_MEDIUM_INPUT)
 
         output = process_puzzle_results(mixed_input)
 
@@ -599,11 +606,11 @@ class TestPipsAggregation:
         """Should combine all three Pips puzzles into single line."""
         from formatter import process_puzzle_results
 
-        mixed_input = f"""{PIPS_EASY_INPUT}
+        mixed_input = """{PIPS_EASY_INPUT}
 
 {PIPS_MEDIUM_INPUT}
 
-{PIPS_HARD_INPUT}"""
+{PIPS_HARD_INPUT}""".format(PIPS_EASY_INPUT=PIPS_EASY_INPUT, PIPS_MEDIUM_INPUT=PIPS_MEDIUM_INPUT, PIPS_HARD_INPUT=PIPS_HARD_INPUT)
 
         output = process_puzzle_results(mixed_input)
 
@@ -617,13 +624,13 @@ class TestPipsAggregation:
         """Should handle Pips mixed with other puzzle types."""
         from formatter import process_puzzle_results
 
-        mixed_input = f"""{WORDLE_INPUT}
+        mixed_input = """{WORDLE_INPUT}
 
 {PIPS_EASY_INPUT}
 
 {PIPS_MEDIUM_INPUT}
 
-{STRANDS_INPUT}"""
+{STRANDS_INPUT}""".format(WORDLE_INPUT=WORDLE_INPUT, PIPS_EASY_INPUT=PIPS_EASY_INPUT, PIPS_MEDIUM_INPUT=PIPS_MEDIUM_INPUT, STRANDS_INPUT=STRANDS_INPUT)
 
         output = process_puzzle_results(mixed_input)
 
@@ -647,9 +654,9 @@ class TestPipsAggregation:
 
         # Paste Medium before Easy (reversed order)
         # Note: Easy is #173, Medium is #171 (different puzzle numbers in test data)
-        mixed_input = f"""{PIPS_MEDIUM_INPUT}
+        mixed_input = """{PIPS_MEDIUM_INPUT}
 
-{PIPS_EASY_INPUT}"""
+{PIPS_EASY_INPUT}""".format(PIPS_MEDIUM_INPUT=PIPS_MEDIUM_INPUT, PIPS_EASY_INPUT=PIPS_EASY_INPUT)
 
         output = process_puzzle_results(mixed_input)
 
@@ -663,11 +670,11 @@ class TestPipsAggregation:
 
         # Paste in random order: Hard, Easy, Medium
         # Note: Easy is #173, Medium/Hard are #171
-        mixed_input = f"""{PIPS_HARD_INPUT}
+        mixed_input = """{PIPS_HARD_INPUT}
 
 {PIPS_EASY_INPUT}
 
-{PIPS_MEDIUM_INPUT}"""
+{PIPS_MEDIUM_INPUT}""".format(PIPS_HARD_INPUT=PIPS_HARD_INPUT, PIPS_EASY_INPUT=PIPS_EASY_INPUT, PIPS_MEDIUM_INPUT=PIPS_MEDIUM_INPUT)
 
         output = process_puzzle_results(mixed_input)
 
@@ -772,9 +779,9 @@ wafflegame.net"""
         """Should add blank line separator before Waffle in multi-puzzle output."""
         from formatter import process_puzzle_results
 
-        mixed_input = f"""{FRAMED_INPUT}
+        mixed_input = """{FRAMED_INPUT}
 
-{WAFFLE_INPUT}"""
+{WAFFLE_INPUT}""".format(FRAMED_INPUT=FRAMED_INPUT, WAFFLE_INPUT=WAFFLE_INPUT)
 
         output = process_puzzle_results(mixed_input)
 
@@ -887,9 +894,9 @@ wafflegame.net/numberwaffle"""
         """Should add blank line separator before Numble in multi-puzzle output."""
         from formatter import process_puzzle_results
 
-        mixed_input = f"""{FRAMED_INPUT}
+        mixed_input = """{FRAMED_INPUT}
 
-{NUMBLE_INPUT}"""
+{NUMBLE_INPUT}""".format(FRAMED_INPUT=FRAMED_INPUT, NUMBLE_INPUT=NUMBLE_INPUT)
 
         output = process_puzzle_results(mixed_input)
 
@@ -997,9 +1004,9 @@ https://wordbunny.app/share"""
         """Should add blank line separator before Word Bunny in multi-puzzle output."""
         from formatter import process_puzzle_results
 
-        mixed_input = f"""{FRAMED_INPUT}
+        mixed_input = """{FRAMED_INPUT}
 
-{WORD_BUNNY_INPUT}"""
+{WORD_BUNNY_INPUT}""".format(FRAMED_INPUT=FRAMED_INPUT, WORD_BUNNY_INPUT=WORD_BUNNY_INPUT)
 
         output = process_puzzle_results(mixed_input)
 
@@ -1052,7 +1059,7 @@ class TestEdgeCases:
 🎥 🟥 🟥 🟥 🟥 🟥 🟥
 
 
-https://framed.wtf"""
+https://framed.wt"""
 
         formatter = FramedFormatter()
         data = formatter.parse(input_with_blanks)
@@ -1096,11 +1103,11 @@ class TestFullPipeline:
         # Import here to avoid circular dependency
         from formatter import process_puzzle_results
 
-        mixed_input = f"""{WORDLE_INPUT}
+        mixed_input = """{WORDLE_INPUT}
 
 {QUOLTURE_INPUT}
 
-{FRAMED_INPUT}"""
+{FRAMED_INPUT}""".format(WORDLE_INPUT=WORDLE_INPUT, QUOLTURE_INPUT=QUOLTURE_INPUT, FRAMED_INPUT=FRAMED_INPUT)
 
         output = process_puzzle_results(mixed_input)
 
@@ -1123,11 +1130,11 @@ class TestFullPipeline:
         """Should correctly process puzzles including Connections."""
         from formatter import process_puzzle_results
 
-        mixed_input = f"""{WORDLE_INPUT}
+        mixed_input = """{WORDLE_INPUT}
 
 {CONNECTIONS_INPUT}
 
-{FRAMED_INPUT}"""
+{FRAMED_INPUT}""".format(WORDLE_INPUT=WORDLE_INPUT, CONNECTIONS_INPUT=CONNECTIONS_INPUT, FRAMED_INPUT=FRAMED_INPUT)
 
         output = process_puzzle_results(mixed_input)
         lines = output.split('\n')
@@ -1149,11 +1156,11 @@ class TestFullPipeline:
         """Should handle all three Framed variants together in correct order."""
         from formatter import process_puzzle_results
 
-        mixed_input = f"""{FRAMED_TITLESHOT_INPUT}
+        mixed_input = """{FRAMED_TITLESHOT_INPUT}
 
 {FRAMED_INPUT}
 
-{FRAMED_ONEFRAME_INPUT}"""
+{FRAMED_ONEFRAME_INPUT}""".format(FRAMED_TITLESHOT_INPUT=FRAMED_TITLESHOT_INPUT, FRAMED_INPUT=FRAMED_INPUT, FRAMED_ONEFRAME_INPUT=FRAMED_ONEFRAME_INPUT)
 
         output = process_puzzle_results(mixed_input)
         lines = output.split('\n')
@@ -1168,11 +1175,11 @@ class TestFullPipeline:
         """Should detect and format Strands among other puzzles."""
         from formatter import detect_and_parse_puzzles, sort_puzzles_by_config, format_output, load_config
 
-        mixed_input = f"""{WORDLE_INPUT}
+        mixed_input = """{WORDLE_INPUT}
 
 {CONNECTIONS_INPUT}
 
-{STRANDS_INPUT}"""
+{STRANDS_INPUT}""".format(WORDLE_INPUT=WORDLE_INPUT, CONNECTIONS_INPUT=CONNECTIONS_INPUT, STRANDS_INPUT=STRANDS_INPUT)
 
         config = load_config()
         puzzles = detect_and_parse_puzzles(mixed_input)
@@ -1202,11 +1209,11 @@ class TestFullPipeline:
         """Should detect and format Waffle among other puzzles."""
         from formatter import detect_and_parse_puzzles, sort_puzzles_by_config, format_output, load_config
 
-        mixed_input = f"""{WORDLE_INPUT}
+        mixed_input = """{WORDLE_INPUT}
 
 {CONNECTIONS_INPUT}
 
-{WAFFLE_INPUT}"""
+{WAFFLE_INPUT}""".format(WORDLE_INPUT=WORDLE_INPUT, CONNECTIONS_INPUT=CONNECTIONS_INPUT, WAFFLE_INPUT=WAFFLE_INPUT)
 
         config = load_config()
         puzzles = detect_and_parse_puzzles(mixed_input)
@@ -1237,11 +1244,11 @@ class TestFullPipeline:
         """Should detect and format Numble among other puzzles."""
         from formatter import detect_and_parse_puzzles, sort_puzzles_by_config, format_output, load_config
 
-        mixed_input = f"""{WORDLE_INPUT}
+        mixed_input = """{WORDLE_INPUT}
 
 {WAFFLE_INPUT}
 
-{NUMBLE_INPUT}"""
+{NUMBLE_INPUT}""".format(WORDLE_INPUT=WORDLE_INPUT, WAFFLE_INPUT=WAFFLE_INPUT, NUMBLE_INPUT=NUMBLE_INPUT)
 
         config = load_config()
         puzzles = detect_and_parse_puzzles(mixed_input)
@@ -1270,11 +1277,11 @@ class TestFullPipeline:
         """Should detect and format Word Bunny last in mixed input."""
         from formatter import detect_and_parse_puzzles, sort_puzzles_by_config, format_output, load_config
 
-        mixed_input = f"""{WORDLE_INPUT}
+        mixed_input = """{WORDLE_INPUT}
 
 {NUMBLE_INPUT}
 
-{WORD_BUNNY_INPUT}"""
+{WORD_BUNNY_INPUT}""".format(WORDLE_INPUT=WORDLE_INPUT, NUMBLE_INPUT=NUMBLE_INPUT, WORD_BUNNY_INPUT=WORD_BUNNY_INPUT)
 
         config = load_config()
         puzzles = detect_and_parse_puzzles(mixed_input)
@@ -1308,45 +1315,45 @@ class TestDeduplication:
         from formatter import process_puzzle_results
 
         # Same Wordle pasted 3 times
-        triple_input = f"""{WORDLE_INPUT}
+        triple_input = """{WORDLE_INPUT}
 
 {WORDLE_INPUT}
 
-{WORDLE_INPUT}"""
+{WORDLE_INPUT}""".format(WORDLE_INPUT=WORDLE_INPUT)
 
         output = process_puzzle_results(triple_input)
 
         # Wordle should appear exactly once
         wordle_count = output.count('Wordle 1,692 4/6')
-        assert wordle_count == 1, f"Expected Wordle to appear once, but appeared {wordle_count} times"
+        assert wordle_count == 1, "Expected Wordle to appear once, but appeared {} times".format(wordle_count)
 
     def test_deduplicate_exact_framed_duplicate(self):
         """Should remove exact Framed duplicates."""
         from formatter import process_puzzle_results
 
         # Same Framed pasted 3 times
-        triple_input = f"""{FRAMED_INPUT}
+        triple_input = """{FRAMED_INPUT}
 
 {FRAMED_INPUT}
 
-{FRAMED_INPUT}"""
+{FRAMED_INPUT}""".format(FRAMED_INPUT=FRAMED_INPUT)
 
         output = process_puzzle_results(triple_input)
 
         # Framed should appear exactly once
         framed_count = output.count('Framed #1427')
-        assert framed_count == 1, f"Expected Framed to appear once, but appeared {framed_count} times"
+        assert framed_count == 1, "Expected Framed to appear once, but appeared {} times".format(framed_count)
 
     def test_deduplicate_pips_same_difficulty(self):
         """Should remove duplicate Pips of same difficulty."""
         from formatter import process_puzzle_results
 
         # Pips Easy (x2) + Medium (x1)
-        mixed_input = f"""{PIPS_EASY_INPUT}
+        mixed_input = """{PIPS_EASY_INPUT}
 
 {PIPS_EASY_INPUT}
 
-{PIPS_MEDIUM_INPUT}"""
+{PIPS_MEDIUM_INPUT}""".format(PIPS_EASY_INPUT=PIPS_EASY_INPUT, PIPS_MEDIUM_INPUT=PIPS_MEDIUM_INPUT)
 
         output = process_puzzle_results(mixed_input)
 
@@ -1361,9 +1368,9 @@ class TestDeduplication:
         from formatter import process_puzzle_results
 
         # Pips Easy + Medium (different difficulties, same or different puzzle numbers)
-        combined_input = f"""{PIPS_EASY_INPUT}
+        combined_input = """{PIPS_EASY_INPUT}
 
-{PIPS_MEDIUM_INPUT}"""
+{PIPS_MEDIUM_INPUT}""".format(PIPS_EASY_INPUT=PIPS_EASY_INPUT, PIPS_MEDIUM_INPUT=PIPS_MEDIUM_INPUT)
 
         output = process_puzzle_results(combined_input)
 
@@ -1378,7 +1385,7 @@ class TestDeduplication:
         from formatter import process_puzzle_results
 
         # Multiple puzzle types with duplicates
-        mixed_input = f"""{FRAMED_INPUT}
+        mixed_input = """{FRAMED_INPUT}
 
 {WORDLE_INPUT}
 
@@ -1388,7 +1395,7 @@ class TestDeduplication:
 
 {CONNECTIONS_INPUT}
 
-{WORDLE_INPUT}"""
+{WORDLE_INPUT}""".format(FRAMED_INPUT=FRAMED_INPUT, WORDLE_INPUT=WORDLE_INPUT, CONNECTIONS_INPUT=CONNECTIONS_INPUT)
 
         output = process_puzzle_results(mixed_input)
 
@@ -1402,11 +1409,11 @@ class TestDeduplication:
         from formatter import process_puzzle_results, detect_and_parse_puzzles, deduplicate_puzzles
 
         # Parse puzzles and check raw_text to verify first is kept
-        triple_input = f"""{FRAMED_INPUT}
+        triple_input = """{FRAMED_INPUT}
 
 {FRAMED_INPUT}
 
-{FRAMED_INPUT}"""
+{FRAMED_INPUT}""".format(FRAMED_INPUT=FRAMED_INPUT)
 
         puzzles = detect_and_parse_puzzles(triple_input)
         assert len(puzzles) == 3  # Three parsed
@@ -1429,9 +1436,9 @@ class TestDeduplication:
 🟩🟩⬛⬛⬛
 🟩🟩🟩🟩🟩"""
 
-        combined_input = f"""{wordle_1692}
+        combined_input = """{wordle_1692}
 
-{wordle_1693}"""
+{wordle_1693}""".format(wordle_1692=wordle_1692, wordle_1693=wordle_1693)
 
         output = process_puzzle_results(combined_input)
 
@@ -1445,7 +1452,7 @@ class TestDeduplication:
 
         # Easy (x2) + Medium (x2) + Hard (x2)
         # Note: Medium and Hard have same puzzle number (#171), Easy has #173
-        all_duplicated = f"""{PIPS_EASY_INPUT}
+        all_duplicated = """{PIPS_EASY_INPUT}
 
 {PIPS_EASY_INPUT}
 
@@ -1455,7 +1462,7 @@ class TestDeduplication:
 
 {PIPS_HARD_INPUT}
 
-{PIPS_HARD_INPUT}"""
+{PIPS_HARD_INPUT}""".format(PIPS_EASY_INPUT=PIPS_EASY_INPUT, PIPS_MEDIUM_INPUT=PIPS_MEDIUM_INPUT, PIPS_HARD_INPUT=PIPS_HARD_INPUT)
 
         output = process_puzzle_results(all_duplicated)
 
@@ -1496,7 +1503,7 @@ if __name__ == '__main__':
     passed_tests = 0
 
     for test_class in test_classes:
-        print(f"\n{test_class.__name__}")
+        print("\n{}".format(test_class.__name__))
         print("-" * 60)
 
         instance = test_class()
@@ -1507,19 +1514,19 @@ if __name__ == '__main__':
             try:
                 method = getattr(instance, method_name)
                 method()
-                print(f"  ✓ {method_name}")
+                print("  ✓ {}".format(method_name))
                 passed_tests += 1
             except AssertionError as e:
-                print(f"  ✗ {method_name}: {e}")
+                print("  ✗ {}: {}".format(method_name, e))
             except Exception as e:
-                print(f"  ✗ {method_name}: Unexpected error: {e}")
+                print("  ✗ {}: Unexpected error: {}".format(method_name, e))
 
     print("\n" + "=" * 60)
-    print(f"Results: {passed_tests}/{total_tests} tests passed")
+    print("Results: {}/{} tests passed".format(passed_tests, total_tests))
 
     if passed_tests == total_tests:
         print("✓ All tests passed!")
         sys.exit(0)
     else:
-        print(f"✗ {total_tests - passed_tests} tests failed")
+        print("✗ {} tests failed".format(total_tests - passed_tests))
         sys.exit(1)

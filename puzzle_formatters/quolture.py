@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 """
 Formatter for Quolture puzzle.
 
@@ -6,7 +9,6 @@ Results are condensed to a single line with all components separated by spaces.
 """
 
 import re
-from typing import Optional
 from .base import BasePuzzleFormatter
 
 
@@ -29,11 +31,11 @@ class QuoltureFormatter(BasePuzzleFormatter):
     puzzle_name = "quolture"
     detection_pattern = r'"Quolture"\s+\d+'
 
-    def can_parse(self, text: str) -> bool:
+    def can_parse(self, text):
         """Check if text contains Quolture puzzle."""
         return re.search(self.detection_pattern, text) is not None
 
-    def parse(self, text: str) -> Optional[dict]:
+    def parse(self, text):
         """
         Extract all Quolture puzzle components.
 
@@ -53,7 +55,7 @@ class QuoltureFormatter(BasePuzzleFormatter):
             'raw_text': text
         }
 
-    def format(self, puzzle_data: dict) -> str:
+    def format(self, puzzle_data):
         """
         Format as single line with all components joined by spaces.
 

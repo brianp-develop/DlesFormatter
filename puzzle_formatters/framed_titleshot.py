@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 """
 Formatter for Framed - Title Shot Challenge puzzle.
 
@@ -6,7 +9,6 @@ representative shot. Results are condensed to a single line: title + emoji grid.
 """
 
 import re
-from typing import Optional
 from .base import BasePuzzleFormatter
 
 
@@ -27,11 +29,11 @@ class FramedTitleShotFormatter(BasePuzzleFormatter):
     puzzle_name = "framed_titleshot"
     detection_pattern = r"Framed - Title Shot Challenge #\d+"
 
-    def can_parse(self, text: str) -> bool:
+    def can_parse(self, text):
         """Check if text contains Title Shot variant of Framed."""
         return re.search(self.detection_pattern, text) is not None
 
-    def parse(self, text: str) -> Optional[dict]:
+    def parse(self, text):
         """
         Extract Title Shot puzzle title and emoji grid.
 
@@ -63,10 +65,10 @@ class FramedTitleShotFormatter(BasePuzzleFormatter):
             'raw_text': text
         }
 
-    def format(self, puzzle_data: dict) -> str:
+    def format(self, puzzle_data):
         """
         Format as single line: title immediately followed by emoji grid.
 
         Example: "Framed - Title Shot Challenge #335🎥 🟥 🟥 🟩 ⬛ ⬛ ⬛"
         """
-        return f"{puzzle_data['title']}{puzzle_data['emoji_grid']}"
+        return "{}{}".format(puzzle_data['title'], puzzle_data['emoji_grid'])

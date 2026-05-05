@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 """
 Formatter for NYT Connections puzzle results.
 
@@ -5,7 +8,6 @@ Connections is a word grouping game that displays results as colored emoji grids
 """
 
 import re
-from typing import Optional
 from .base import BasePuzzleFormatter
 
 
@@ -15,7 +17,7 @@ class ConnectionsFormatter(BasePuzzleFormatter):
     puzzle_name = "connections"
     detection_pattern = r"Connections\s*\nPuzzle #\d+"
 
-    def can_parse(self, text: str) -> bool:
+    def can_parse(self, text):
         """
         Check if the text contains a Connections puzzle result.
 
@@ -27,7 +29,7 @@ class ConnectionsFormatter(BasePuzzleFormatter):
         """
         return re.search(self.detection_pattern, text, re.MULTILINE) is not None
 
-    def parse(self, text: str) -> Optional[dict]:
+    def parse(self, text):
         """
         Parse Connections puzzle result from text.
 
@@ -75,7 +77,7 @@ class ConnectionsFormatter(BasePuzzleFormatter):
             'raw_text': text
         }
 
-    def format(self, puzzle_data: dict) -> str:
+    def format(self, puzzle_data):
         """
         Format Connections puzzle result for output.
 
@@ -96,7 +98,7 @@ class ConnectionsFormatter(BasePuzzleFormatter):
         grid_lines = puzzle_data['grid_lines']
 
         # Build output: title line + grid rows
-        output_lines = [f"Connections #{puzzle_number}"]
+        output_lines = ["Connections #{}".format(puzzle_number)]
         output_lines.extend(grid_lines)
 
         return '\n'.join(output_lines)

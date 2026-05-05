@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 """
 Formatter for NYT Strands puzzle results.
 
@@ -6,7 +9,6 @@ Results show a multi-line emoji grid that gets collapsed to a single line.
 """
 
 import re
-from typing import Optional
 from .base import BasePuzzleFormatter
 
 
@@ -35,7 +37,7 @@ class StrandsFormatter(BasePuzzleFormatter):
     puzzle_name = "strands"
     detection_pattern = r"Strands #\d+"
 
-    def can_parse(self, text: str) -> bool:
+    def can_parse(self, text):
         """
         Check if the text contains a Strands puzzle result.
 
@@ -47,7 +49,7 @@ class StrandsFormatter(BasePuzzleFormatter):
         """
         return re.search(self.detection_pattern, text, re.MULTILINE) is not None
 
-    def parse(self, text: str) -> Optional[dict]:
+    def parse(self, text):
         """
         Parse Strands puzzle result from text.
 
@@ -103,7 +105,7 @@ class StrandsFormatter(BasePuzzleFormatter):
             'raw_text': text
         }
 
-    def format(self, parsed_data: dict) -> str:
+    def format(self, parsed_data):
         """
         Format Strands puzzle result for output.
 
@@ -123,7 +125,7 @@ class StrandsFormatter(BasePuzzleFormatter):
         emoji_lines = parsed_data['emoji_lines']
 
         # Build output: title line, theme line, collapsed emoji grid
-        output_lines = [f"Strands #{puzzle_number}"]
+        output_lines = ["Strands #{}".format(puzzle_number)]
 
         if theme:
             output_lines.append(theme)

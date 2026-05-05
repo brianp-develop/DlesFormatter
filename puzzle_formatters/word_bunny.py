@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 """
 Formatter for Word Bunny puzzle results.
 
@@ -6,7 +9,6 @@ one word into another through a chain of single-letter changes.
 """
 
 import re
-from typing import Optional
 from .base import BasePuzzleFormatter
 
 
@@ -30,11 +32,11 @@ class WordBunnyFormatter(BasePuzzleFormatter):
     puzzle_name = "word_bunny"
     detection_pattern = r"Word Bunny in \d+ hops"
 
-    def can_parse(self, text: str) -> bool:
+    def can_parse(self, text):
         """Check if text contains Word Bunny puzzle."""
         return re.search(self.detection_pattern, text) is not None
 
-    def parse(self, text: str) -> Optional[dict]:
+    def parse(self, text):
         """
         Extract Word Bunny puzzle data.
 
@@ -100,7 +102,7 @@ class WordBunnyFormatter(BasePuzzleFormatter):
             'raw_text': text
         }
 
-    def format(self, puzzle_data: dict) -> str:
+    def format(self, puzzle_data):
         """
         Format as multi-line: title + word chain + bunny grid.
 

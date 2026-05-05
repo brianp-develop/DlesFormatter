@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 """
 Base class for puzzle formatters.
 
@@ -5,9 +8,10 @@ All puzzle formatters must inherit from BasePuzzleFormatter and implement
 the required methods for detection, parsing, and formatting.
 """
 
-from abc import ABC, abstractmethod
-from typing import Optional, List
+from abc import ABCMeta, abstractmethod
 import re
+
+ABC = ABCMeta(str('ABC'), (object,), {'__slots__': ()})
 
 
 class BasePuzzleFormatter(ABC):
@@ -22,11 +26,11 @@ class BasePuzzleFormatter(ABC):
         detection_pattern (str): Regex pattern to identify this puzzle in input text
     """
 
-    puzzle_name: str = ""
-    detection_pattern: str = ""
+    puzzle_name = ""
+    detection_pattern = ""
 
     @abstractmethod
-    def can_parse(self, text: str) -> bool:
+    def can_parse(self, text):
         """
         Determine if this formatter can handle the given text.
 
@@ -39,7 +43,7 @@ class BasePuzzleFormatter(ABC):
         pass
 
     @abstractmethod
-    def parse(self, text: str) -> Optional[dict]:
+    def parse(self, text):
         """
         Extract puzzle data from the input text.
 
@@ -55,7 +59,7 @@ class BasePuzzleFormatter(ABC):
         pass
 
     @abstractmethod
-    def format(self, puzzle_data: dict) -> str:
+    def format(self, puzzle_data):
         """
         Format the parsed puzzle data according to this puzzle's rules.
 
@@ -67,7 +71,7 @@ class BasePuzzleFormatter(ABC):
         """
         pass
 
-    def _parse_lines(self, text: str, filter_empty: bool = True) -> List[str]:
+    def _parse_lines(self, text, filter_empty=True):
         """
         Extract lines from text, optionally filtering empty lines.
 
@@ -83,7 +87,7 @@ class BasePuzzleFormatter(ABC):
         lines = [line.strip() for line in text.strip().split('\n')]
         return [line for line in lines if line] if filter_empty else lines
 
-    def process(self, text: str) -> Optional[str]:
+    def process(self, text):
         """
         Convenience method that parses and formats in one step.
 

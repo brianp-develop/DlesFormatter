@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 """
 Formatter for Framed and Framed One Frame puzzles.
 
@@ -6,7 +9,6 @@ Results are condensed to a single line: title + emoji grid.
 """
 
 import re
-from typing import Optional
 from .base import BasePuzzleFormatter
 
 
@@ -27,14 +29,14 @@ class FramedFormatter(BasePuzzleFormatter):
     puzzle_name = "framed_regular"
     detection_pattern = r"Framed #\d+"
 
-    def can_parse(self, text: str) -> bool:
+    def can_parse(self, text):
         """Check if text contains regular Framed puzzle (not One Frame variant)."""
         # Must have "Framed #" but NOT "One Frame"
         has_framed = bool(re.search(self.detection_pattern, text))
         has_one_frame = "One Frame" in text
         return has_framed and not has_one_frame
 
-    def parse(self, text: str) -> Optional[dict]:
+    def parse(self, text):
         """
         Extract Framed puzzle title and emoji grid.
 
@@ -61,13 +63,13 @@ class FramedFormatter(BasePuzzleFormatter):
             'raw_text': text
         }
 
-    def format(self, puzzle_data: dict) -> str:
+    def format(self, puzzle_data):
         """
         Format as single line: title immediately followed by emoji grid.
 
         Example: "Framed #1427🎥 🟥 🟥 🟥 🟥 🟥 🟥"
         """
-        return f"{puzzle_data['title']}{puzzle_data['emoji_grid']}"
+        return "{}{}".format(puzzle_data['title'], puzzle_data['emoji_grid'])
 
 
 class FramedOneFrameFormatter(BasePuzzleFormatter):
@@ -87,11 +89,11 @@ class FramedOneFrameFormatter(BasePuzzleFormatter):
     puzzle_name = "framed_oneframe"
     detection_pattern = r"Framed - One Frame Challenge #\d+"
 
-    def can_parse(self, text: str) -> bool:
+    def can_parse(self, text):
         """Check if text contains One Frame variant of Framed."""
         return re.search(self.detection_pattern, text) is not None
 
-    def parse(self, text: str) -> Optional[dict]:
+    def parse(self, text):
         """
         Extract One Frame puzzle title and emoji grid.
 
@@ -118,10 +120,10 @@ class FramedOneFrameFormatter(BasePuzzleFormatter):
             'raw_text': text
         }
 
-    def format(self, puzzle_data: dict) -> str:
+    def format(self, puzzle_data):
         """
         Format as single line: title immediately followed by emoji grid.
 
         Example: "Framed - One Frame Challenge #1427🎥 🟥"
         """
-        return f"{puzzle_data['title']}{puzzle_data['emoji_grid']}"
+        return "{}{}".format(puzzle_data['title'], puzzle_data['emoji_grid'])

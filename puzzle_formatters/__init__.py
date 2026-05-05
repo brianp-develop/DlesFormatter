@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 """
 Puzzle Formatters Package
 
@@ -34,7 +37,7 @@ ALL_FORMATTERS = [
 ]
 
 
-def get_formatter_for_text(text: str):
+def get_formatter_for_text(text):
     """
     Find the appropriate formatter for the given text.
 
@@ -52,7 +55,7 @@ def get_formatter_for_text(text: str):
     return None
 
 
-def get_formatter_by_name(puzzle_name: str):
+def get_formatter_by_name(puzzle_name):
     """
     Get a formatter by its puzzle_name identifier.
 

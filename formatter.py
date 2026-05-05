@@ -1,4 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 """
 Puzzle Results Formatter
 
@@ -14,18 +17,22 @@ Features:
     - Auto-copies formatted results to clipboard
     - Supports multiple puzzles in any order
 
-Author: Created for daily puzzle result sharing 
+Author: Created for daily puzzle result sharing
 """
 
+import io
 import json
+import os
 import re
 import sys
-from pathlib import Path
-from typing import List, Dict, Optional
 
 # Configure stdout for UTF-8 on Windows to handle emoji properly
 if sys.platform == 'win32':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    if sys.version_info[0] >= 3:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    else:
+        import codecs
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout, errors='replace')
 
 try:
     import pyperclip
@@ -41,7 +48,7 @@ UNKNOWN_PUZZLE_PRIORITY = 9999
 PIPS_DIFFICULTY_ORDER = {'Easy': 1, 'Medium': 2, 'Hard': 3}
 
 
-def load_config() -> dict:
+def load_config():
     """
     Load configuration from config.json.
 
@@ -51,21 +58,22 @@ def load_config() -> dict:
     Raises:
         SystemExit if config.json not found or invalid
     """
-    config_path = Path(__file__).parent / "config.json"
+    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
 
-    if not config_path.exists():
-        print(f"Error: config.json not found at {config_path}")
+    if not os.path.exists(config_path):
+        print("Error: config.json not found at {}".format(config_path))
         sys.exit(1)
 
     try:
-        with open(config_path, 'r', encoding='utf-8') as f:
+        with io.open(config_path, 'r', encoding='utf-8') as f:
             return json.load(f)
-    except json.JSONDecodeError as e:
-        print(f"Error: Invalid JSON in config.json: {e}")
+    except ValueError as e:
+        # json.JSONDecodeError on Py3 (subclass of ValueError); plain ValueError on Py2
+        print("Error: Invalid JSON in config.json: {}".format(e))
         sys.exit(1)
 
 
-def split_into_puzzle_blocks(text: str) -> List[str]:
+def split_into_puzzle_blocks(text):
     """
     Split input text into individual puzzle blocks.
 
@@ -98,7 +106,7 @@ def split_into_puzzle_blocks(text: str) -> List[str]:
 
     # Also split by URLs (remove URLs and create breaks)
     url_pattern = r'https?://[^\s]+'
-    text_with_delimiters = re.sub(url_pattern, f'\n{PUZZLE_SEPARATOR}\n', text_with_delimiters)
+    text_with_delimiters = re.sub(url_pattern, '\n{}\n'.format(PUZZLE_SEPARATOR), text_with_delimiters)
 
     # Split by the delimiter
     blocks = text_with_delimiters.split(PUZZLE_SEPARATOR)
@@ -109,7 +117,7 @@ def split_into_puzzle_blocks(text: str) -> List[str]:
     return blocks
 
 
-def detect_and_parse_puzzles(text: str) -> List[Dict]:
+def detect_and_parse_puzzles(text):
     """
     Detect all puzzles in the input text and parse them.
 
@@ -143,7 +151,7 @@ def detect_and_parse_puzzles(text: str) -> List[Dict]:
     return detected_puzzles
 
 
-def sort_puzzles_by_config(puzzles: List[Dict], puzzle_order: List[str]) -> List[Dict]:
+def sort_puzzles_by_config(puzzles, puzzle_order):
     """
     Sort detected puzzles according to the configured order.
 
@@ -156,7 +164,7 @@ def sort_puzzles_by_config(puzzles: List[Dict], puzzle_order: List[str]) -> List
     Returns:
         Sorted list of puzzle dictionaries
     """
-    def get_sort_key(puzzle: Dict) -> int:
+    def get_sort_key(puzzle):
         """
         Generate sort key for a puzzle.
 
@@ -176,7 +184,7 @@ def sort_puzzles_by_config(puzzles: List[Dict], puzzle_order: List[str]) -> List
     return sorted(puzzles, key=get_sort_key)
 
 
-def _get_puzzle_identity(puzzle: Dict) -> tuple:
+def _get_puzzle_identity(puzzle):
     """
     Extract unique identity for a puzzle to detect duplicates.
 
@@ -253,7 +261,7 @@ def _get_puzzle_identity(puzzle: Dict) -> tuple:
     return (puzzle_name, hash(data.get('raw_text', '')))
 
 
-def deduplicate_puzzles(puzzles: List[Dict]) -> List[Dict]:
+def deduplicate_puzzles(puzzles):
     """
     Remove duplicate puzzles, keeping only the first occurrence.
 
@@ -278,7 +286,7 @@ def deduplicate_puzzles(puzzles: List[Dict]) -> List[Dict]:
     return unique_puzzles
 
 
-def format_output(puzzles: List[Dict]) -> str:
+def format_output(puzzles):
     """
     Format all puzzles into final output string.
 
@@ -319,7 +327,7 @@ def format_output(puzzles: List[Dict]) -> str:
     return '\n'.join(formatted_parts)
 
 
-def aggregate_pips_puzzles(puzzles: List[Dict]) -> List[Dict]:
+def aggregate_pips_puzzles(puzzles):
     """
     Combine multiple Pips puzzles into single entry.
 
@@ -355,7 +363,7 @@ def aggregate_pips_puzzles(puzzles: List[Dict]) -> List[Dict]:
     return result
 
 
-def _combine_pips_group(pips_puzzles: List[Dict]) -> Dict:
+def _combine_pips_group(pips_puzzles):
     """
     Combine multiple Pips puzzle entries into single entry.
 
@@ -403,7 +411,7 @@ def _combine_pips_group(pips_puzzles: List[Dict]) -> Dict:
     }
 
 
-def process_puzzle_results(input_text: str) -> str:
+def process_puzzle_results(input_text):
     """
     Main processing function: parse, sort, and format puzzle results.
 
@@ -459,11 +467,17 @@ def interactive_mode():
 
     all_puzzles_text = []
 
+    # input() vs raw_input() bridge for Py2 compatibility
+    try:
+        prompt_input = raw_input  # Py2
+    except NameError:
+        prompt_input = input  # Py3
+
     while True:  # Outer loop - runs until quit
         try:
             while True:  # Inner loop - captures puzzles until Ctrl+C
                 # Wait for Enter keypress or quit command
-                user_input = input("Press Enter to capture (or type 'quit' to exit): ").strip().lower()
+                user_input = prompt_input("Press Enter to capture (or type 'quit' to exit): ").strip().lower()
 
                 # Check for quit command
                 if user_input == 'quit':
@@ -483,7 +497,7 @@ def interactive_mode():
                 formatter = get_formatter_for_text(clipboard_content)
 
                 if formatter:
-                    print(f"  ✓ Captured {formatter.puzzle_name.replace('_', ' ').title()}")
+                    print("  ✓ Captured {}".format(formatter.puzzle_name.replace('_', ' ').title()))
                     all_puzzles_text.append(clipboard_content)
                 else:
                     print("  ⚠ Unrecognized puzzle format (will try to process anyway)")
@@ -513,7 +527,7 @@ def interactive_mode():
                 pyperclip.copy(output)
                 print("✓ Results copied to clipboard!")
             except Exception as e:
-                print(f"Note: Could not copy to clipboard: {e}")
+                print("Note: Could not copy to clipboard: {}".format(e))
 
             print("\nResults ready to paste! Continue adding puzzles or type 'quit' to exit.")
             print()

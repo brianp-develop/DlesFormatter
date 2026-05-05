@@ -1,5 +1,7 @@
 Note: This project's primary purpose was to explore development of a simple program with Claude Code. Most code in this repo was written by Claude Sonnet 4.5. It works well for me, but is not built with configurability in mind. YMMV.
 
+> **Python 2.7 branch.** This is a courtesy backport of `master` for users limited to Python 2.7. It is a one-off snapshot — not actively maintained. `master` requires Python 3.7+ and is the supported branch.
+
 # Puzzle Results Formatter
 
 A Python tool that collates and formats daily puzzle results (Wordle, Framed, Quolture, etc.) into a standardized format for sharing.

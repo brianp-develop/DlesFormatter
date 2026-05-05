@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 """
 Formatter for Waffle puzzle results.
 
@@ -6,7 +9,6 @@ Players rearrange letters to form valid words horizontally and vertically.
 """
 
 import re
-from typing import Optional
 from .base import BasePuzzleFormatter
 
 
@@ -16,11 +18,11 @@ class WaffleFormatter(BasePuzzleFormatter):
     puzzle_name = "waffle"
     detection_pattern = r"#waffle\d+ \d+/5"
 
-    def can_parse(self, text: str) -> bool:
+    def can_parse(self, text):
         """Check if text contains Waffle puzzle."""
         return re.search(self.detection_pattern, text, re.MULTILINE) is not None
 
-    def parse(self, text: str) -> Optional[dict]:
+    def parse(self, text):
         """
         Extract Waffle puzzle data.
 
@@ -63,7 +65,7 @@ class WaffleFormatter(BasePuzzleFormatter):
             'raw_text': text
         }
 
-    def format(self, puzzle_data: dict) -> str:
+    def format(self, puzzle_data):
         """
         Format as multi-line: title + 5 grid lines + optional streak.
 

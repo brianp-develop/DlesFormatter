@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 """
 Formatter for Pips puzzle.
 
@@ -7,7 +10,6 @@ into a single output line.
 """
 
 import re
-from typing import Optional
 from .base import BasePuzzleFormatter
 
 
@@ -29,11 +31,11 @@ class PipsFormatter(BasePuzzleFormatter):
     puzzle_name = "pips"
     detection_pattern = r"Pips #\d+ (Easy|Medium|Hard)"
 
-    def can_parse(self, text: str) -> bool:
+    def can_parse(self, text):
         """Check if text contains Pips puzzle (any difficulty)."""
         return re.search(self.detection_pattern, text) is not None
 
-    def parse(self, text: str) -> Optional[dict]:
+    def parse(self, text):
         """
         Extract Pips puzzle data.
 
@@ -66,7 +68,7 @@ class PipsFormatter(BasePuzzleFormatter):
             'raw_text': text
         }
 
-    def format(self, puzzle_data: dict) -> str:
+    def format(self, puzzle_data):
         """
         Format single Pips puzzle.
 
@@ -74,5 +76,9 @@ class PipsFormatter(BasePuzzleFormatter):
 
         Note: Multiple Pips puzzles are aggregated later in process_puzzle_results.
         """
-        return (f"Pips #{puzzle_data['puzzle_number']} {puzzle_data['difficulty']} "
-                f"{puzzle_data['emoji']} {puzzle_data['time']}")
+        return "Pips #{} {} {} {}".format(
+            puzzle_data['puzzle_number'],
+            puzzle_data['difficulty'],
+            puzzle_data['emoji'],
+            puzzle_data['time'],
+        )

@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 """
 Formatter for Numble puzzle results.
 
@@ -6,7 +9,6 @@ Players rearrange numbers to form valid equations horizontally and vertically.
 """
 
 import re
-from typing import Optional
 from .base import BasePuzzleFormatter
 
 
@@ -40,11 +42,11 @@ class NumbleFormatter(BasePuzzleFormatter):
     puzzle_name = "numble"
     detection_pattern = r"#numble\d+ \d+/5"
 
-    def can_parse(self, text: str) -> bool:
+    def can_parse(self, text):
         """Check if text contains Numble puzzle."""
         return re.search(self.detection_pattern, text, re.MULTILINE) is not None
 
-    def parse(self, text: str) -> Optional[dict]:
+    def parse(self, text):
         """
         Extract Numble puzzle data.
 
@@ -87,7 +89,7 @@ class NumbleFormatter(BasePuzzleFormatter):
             'raw_text': text
         }
 
-    def format(self, puzzle_data: dict) -> str:
+    def format(self, puzzle_data):
         """
         Format as multi-line: title + 7 grid lines + optional streak.
 

@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 """
 Formatter for Wordle puzzle.
 
@@ -6,7 +9,6 @@ Results keep the multi-line grid structure showing each guess.
 """
 
 import re
-from typing import Optional
 from .base import BasePuzzleFormatter
 
 
@@ -35,11 +37,11 @@ class WordleFormatter(BasePuzzleFormatter):
     puzzle_name = "wordle"
     detection_pattern = r"Wordle \d+[,\d]* \d+/\d+"
 
-    def can_parse(self, text: str) -> bool:
+    def can_parse(self, text):
         """Check if text contains Wordle puzzle."""
         return re.search(self.detection_pattern, text) is not None
 
-    def parse(self, text: str) -> Optional[dict]:
+    def parse(self, text):
         """
         Extract Wordle title and emoji grid lines.
 
@@ -66,7 +68,7 @@ class WordleFormatter(BasePuzzleFormatter):
             'raw_text': text
         }
 
-    def format(self, puzzle_data: dict) -> str:
+    def format(self, puzzle_data):
         """
         Format as multi-line output: title on first line, then grid lines.
 

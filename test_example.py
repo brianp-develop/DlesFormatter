@@ -1,12 +1,18 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 """Quick demo of formatter with sample data."""
 
 import sys
 
 # Configure UTF-8 for Windows
 if sys.platform == 'win32':
-    import io
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    if sys.version_info[0] >= 3:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    else:
+        import codecs
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout, errors='replace')
 
 from formatter import process_puzzle_results
 
