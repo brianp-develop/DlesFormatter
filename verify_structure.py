@@ -12,13 +12,14 @@ import io
 import os
 import sys
 
-# Configure stdout for UTF-8 on Windows
-if sys.platform == 'win32':
+# Configure stdout for UTF-8 on Windows. Sentinel prevents double-wrap on Py2.
+if sys.platform == 'win32' and not getattr(sys, '_dlesformatter_utf8_wrapped', False):
     if sys.version_info[0] >= 3:
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     else:
         import codecs
         sys.stdout = codecs.getwriter('utf-8')(sys.stdout, errors='replace')
+    sys._dlesformatter_utf8_wrapped = True
 
 
 def check_file_exists(filepath, description):

@@ -11,13 +11,16 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import os
 import sys
 
-# Configure stdout for UTF-8 on Windows
-if sys.platform == 'win32':
+# Configure stdout for UTF-8 on Windows. Sentinel prevents double-wrap when
+# formatter.py is later imported (its identical wrap would otherwise feed
+# UTF-8 bytes into a second encoder and crash on Py2's implicit ASCII decode).
+if sys.platform == 'win32' and not getattr(sys, '_dlesformatter_utf8_wrapped', False):
     if sys.version_info[0] >= 3:
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     else:
         import codecs
         sys.stdout = codecs.getwriter('utf-8')(sys.stdout, errors='replace')
+    sys._dlesformatter_utf8_wrapped = True
 
 # Add parent directory to path to import puzzle_formatters
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -1517,9 +1520,10 @@ if __name__ == '__main__':
                 print("  ✓ {}".format(method_name))
                 passed_tests += 1
             except AssertionError as e:
-                print("  ✗ {}: {}".format(method_name, e))
+                # Use {!r} so non-ASCII exception messages don't blow up Py2 print
+                print("  ✗ {}: {!r}".format(method_name, e))
             except Exception as e:
-                print("  ✗ {}: Unexpected error: {}".format(method_name, e))
+                print("  ✗ {}: Unexpected error: {!r}".format(method_name, e))
 
     print("\n" + "=" * 60)
     print("Results: {}/{} tests passed".format(passed_tests, total_tests))

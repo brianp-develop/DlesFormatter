@@ -26,13 +26,17 @@ import os
 import re
 import sys
 
-# Configure stdout for UTF-8 on Windows to handle emoji properly
-if sys.platform == 'win32':
+# Configure stdout for UTF-8 on Windows to handle emoji properly.
+# The sentinel prevents double-wrapping when both formatter and tests apply the
+# Py2 codecs writer; double-wrap would feed UTF-8 bytes into a second encoder
+# and crash on the implicit ASCII decode.
+if sys.platform == 'win32' and not getattr(sys, '_dlesformatter_utf8_wrapped', False):
     if sys.version_info[0] >= 3:
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     else:
         import codecs
         sys.stdout = codecs.getwriter('utf-8')(sys.stdout, errors='replace')
+    sys._dlesformatter_utf8_wrapped = True
 
 try:
     import pyperclip
