@@ -190,7 +190,9 @@ Strands #705
 
 ## Configuration
 
-Edit `config.json` to customize puzzle ordering:
+Edit `config.json` to customize puzzle ordering and where blank lines appear in the output.
+
+By default, puzzles are emitted back-to-back with no blank line between them. Insert `"---"` entries in `puzzle_order` to add a blank line before the next puzzle:
 
 ```json
 {
@@ -199,12 +201,19 @@ Edit `config.json` to customize puzzle ordering:
     "framed_oneframe",
     "framed_titleshot",
     "quolture",
+    "---",
     "wordle",
+    "---",
     "connections",
+    "---",
     "strands",
+    "---",
     "pips",
+    "---",
     "waffle",
+    "---",
     "numble",
+    "---",
     "word_bunny"
   ]
 }
