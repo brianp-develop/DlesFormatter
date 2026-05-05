@@ -39,6 +39,31 @@ from puzzle_formatters import get_formatter_for_text
 PUZZLE_SEPARATOR = '{PUZZLE_SEPARATOR}'
 UNKNOWN_PUZZLE_PRIORITY = 9999
 PIPS_DIFFICULTY_ORDER = {'Easy': 1, 'Medium': 2, 'Hard': 3}
+# A "---" entry in config.json's puzzle_order inserts a blank line in the
+# output before the next puzzle. Multiple consecutive markers collapse to one.
+BLANK_LINE_MARKER = '---'
+
+
+def _parse_puzzle_order(puzzle_order):
+    """Split a config puzzle_order list into puzzle names and blank-before set.
+
+    Returns:
+        (clean_order, blank_before_set)
+        - clean_order: list of puzzle_name strings, in config order, markers stripped
+        - blank_before_set: set of puzzle_names that should be preceded by a blank line
+    """
+    clean_order = []
+    blank_before = set()
+    pending_blank = False
+    for entry in puzzle_order:
+        if entry == BLANK_LINE_MARKER:
+            pending_blank = True
+        else:
+            clean_order.append(entry)
+            if pending_blank:
+                blank_before.add(entry)
+                pending_blank = False
+    return clean_order, blank_before
 
 
 def load_config() -> dict:
@@ -148,32 +173,32 @@ def sort_puzzles_by_config(puzzles: List[Dict], puzzle_order: List[str]) -> List
     Sort detected puzzles according to the configured order.
 
     Puzzles not in the config are placed at the end in order of detection.
+    Also annotates each puzzle with a 'blank_before' flag derived from
+    BLANK_LINE_MARKER entries in puzzle_order, which format_output reads.
 
     Args:
         puzzles: List of detected puzzle dictionaries
-        puzzle_order: Ordered list of puzzle_name identifiers from config
+        puzzle_order: Ordered list of puzzle_name identifiers from config,
+                      optionally interleaved with BLANK_LINE_MARKER entries
 
     Returns:
         Sorted list of puzzle dictionaries
     """
-    def get_sort_key(puzzle: Dict) -> int:
-        """
-        Generate sort key for a puzzle.
+    clean_order, blank_before = _parse_puzzle_order(puzzle_order)
 
-        Returns:
-            Priority value - lower numbers come first (position in config, or UNKNOWN_PUZZLE_PRIORITY if not in config)
-        """
+    def get_sort_key(puzzle: Dict) -> int:
         puzzle_name = puzzle['puzzle_name']
         try:
-            # Get position in configured order (0-based)
-            priority = puzzle_order.index(puzzle_name)
+            return clean_order.index(puzzle_name)
         except ValueError:
-            # Not in config - put at end
-            priority = UNKNOWN_PUZZLE_PRIORITY
+            return UNKNOWN_PUZZLE_PRIORITY
 
-        return priority
+    sorted_puzzles = sorted(puzzles, key=get_sort_key)
 
-    return sorted(puzzles, key=get_sort_key)
+    for puzzle in sorted_puzzles:
+        puzzle['blank_before'] = puzzle['puzzle_name'] in blank_before
+
+    return sorted_puzzles
 
 
 def _get_puzzle_identity(puzzle: Dict) -> tuple:
@@ -282,9 +307,10 @@ def format_output(puzzles: List[Dict]) -> str:
     """
     Format all puzzles into final output string.
 
-    Applies formatting rules:
-    - Single-line puzzles (Framed, Quolture) have no blank lines between them
-    - Wordle (multi-line) is separated by a blank line from previous puzzles
+    Blank lines between puzzles are driven by the 'blank_before' flag
+    that sort_puzzles_by_config attaches based on "---" markers in
+    config.json. By default puzzles are emitted back-to-back with no
+    separator; insert a marker in config.json to add blank lines.
 
     Args:
         puzzles: Sorted list of puzzle dictionaries
@@ -304,15 +330,10 @@ def format_output(puzzles: List[Dict]) -> str:
         else:
             formatter = puzzle['formatter']
             data = puzzle['data']
-            # Format this puzzle
             formatted = formatter.format(data)
 
-        # Determine if this is a multi-line puzzle (Wordle)
-        is_multiline = '\n' in formatted
-
-        # Add blank line before Wordle if there were previous puzzles
-        if (is_multiline or puzzle['puzzle_name'] == 'pips') and formatted_parts:
-            formatted_parts.append('')  # Blank line separator
+        if puzzle.get('blank_before') and formatted_parts:
+            formatted_parts.append('')
 
         formatted_parts.append(formatted)
 
