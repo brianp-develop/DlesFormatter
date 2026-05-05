@@ -120,17 +120,18 @@ detect_and_parse_puzzles(text) -> List[Dict]
 ```python
 sort_puzzles_by_config(puzzles, puzzle_order) -> List[Dict]
 ```
-- Reorders puzzles according to `config.json`
+- Parses `puzzle_order` via `_parse_puzzle_order()`, separating puzzle names from `"---"` blank-line markers
+- Reorders puzzles by config position
 - Puzzles not in config appear at end (in detection order)
-- Ensures consistent output regardless of input order
+- Annotates each puzzle dict with a `blank_before` flag derived from marker positions
 
 #### 4. Output Assembly
 ```python
 format_output(puzzles) -> str
 ```
 - Formats each puzzle using its formatter
-- Adds blank line before Wordle (multi-line puzzle)
-- No blank lines between single-line puzzles
+- Inserts a blank line before any puzzle whose `blank_before` flag is set (and that has prior output)
+- No implicit "single vs multi-line" heuristic — placement is fully driven by `"---"` markers in config
 
 ## Data Flow
 
@@ -152,7 +153,7 @@ Formatted Result → Clipboard
 
 ## Configuration System
 
-`config.json` defines puzzle ordering:
+`config.json` defines puzzle ordering and blank-line placement. It's gitignored (per-machine); `config.json.example` ships the recommended layout. Without `config.json`, `load_config()` returns an empty `puzzle_order` and the pipeline degrades gracefully to detection order with no blank lines.
 
 ```json
 {
@@ -160,13 +161,17 @@ Formatted Result → Clipboard
     "framed_regular",
     "framed_oneframe",
     "quolture",
+    "---",
     "wordle"
   ]
 }
 ```
 
+`"---"` entries insert a blank line before the next puzzle in the output. Multiple consecutive markers collapse to one; markers at the start/end of the array are no-ops.
+
 **Benefits:**
-- Users can customize order without code changes
+- Users can customize order and visual spacing without code changes
+- Customizations stay local (gitignored) and don't leak into commits
 - Easy to add new puzzles to ordering
 - Clear separation of preferences vs logic
 

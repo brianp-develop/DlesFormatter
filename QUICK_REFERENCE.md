@@ -82,19 +82,25 @@ python -m pip install -r requirements.txt
 ### Add a new puzzle
 1. Create `puzzle_formatters/newpuzzle.py`
 2. Edit `puzzle_formatters/__init__.py` (import + register)
-3. Edit `config.json` (add to puzzle_order)
+3. Edit `config.json.example` (add to puzzle_order — this is the committed layout)
 
 ### Change puzzle order
-Edit `config.json`:
+`config.json` is gitignored — copy the example first if you don't have one:
+```bash
+cp config.json.example config.json
+```
+Then edit `config.json`. `puzzle_order` is a list of identifiers; insert `"---"` to add a blank line before the next puzzle:
 ```json
 {
   "puzzle_order": [
     "framed_regular",
+    "---",
     "wordle",
     "quolture"
   ]
 }
 ```
+Without a `config.json`, puzzles appear in detection order with no blank lines.
 
 ## Getting More Help
 
