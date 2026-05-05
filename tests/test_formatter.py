@@ -25,6 +25,16 @@ if sys.platform == 'win32' and not getattr(sys, '_dlesformatter_utf8_wrapped', F
 # Add parent directory to path to import puzzle_formatters
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Tests assert the recommended layout (blank-line markers in config.json).
+# config.json is gitignored — bootstrap it from .example on fresh clones so
+# the suite stays runnable without manual setup.
+import shutil
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_CONFIG_PATH = os.path.join(_REPO_ROOT, "config.json")
+_EXAMPLE_PATH = os.path.join(_REPO_ROOT, "config.json.example")
+if not os.path.exists(_CONFIG_PATH) and os.path.exists(_EXAMPLE_PATH):
+    shutil.copy(_EXAMPLE_PATH, _CONFIG_PATH)
+
 from puzzle_formatters import (
     ConnectionsFormatter,
     FramedFormatter,

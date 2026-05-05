@@ -190,9 +190,15 @@ Strands #705
 
 ## Configuration
 
-Edit `config.json` to customize puzzle ordering and where blank lines appear in the output.
+`config.json` is per-machine and gitignored. Without one, puzzles appear in the order you pasted them with no blank lines between them — functional but visually dense.
 
-By default, puzzles are emitted back-to-back with no blank line between them. Insert `"---"` entries in `puzzle_order` to add a blank line before the next puzzle:
+To customize ordering and add blank-line breaks, copy the recommended layout and edit it:
+
+```bash
+cp config.json.example config.json
+```
+
+`puzzle_order` is a list of puzzle identifiers. Insert `"---"` entries to add a blank line before the next puzzle in the output:
 
 ```json
 {

@@ -79,19 +79,22 @@ def _parse_puzzle_order(puzzle_order):
 
 def load_config():
     """
-    Load configuration from config.json.
+    Load configuration from config.json, or return defaults if missing.
+
+    config.json is gitignored — copy config.json.example to config.json to
+    customize ordering and blank-line markers. Without it, puzzles emit in
+    detection order with no blank lines between them.
 
     Returns:
-        Dictionary containing puzzle_order list
+        Dictionary containing puzzle_order list (possibly empty)
 
     Raises:
-        SystemExit if config.json not found or invalid
+        SystemExit if config.json exists but contains invalid JSON
     """
     config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
 
     if not os.path.exists(config_path):
-        print("Error: config.json not found at {}".format(config_path))
-        sys.exit(1)
+        return {"puzzle_order": []}
 
     try:
         with io.open(config_path, 'r', encoding='utf-8') as f:

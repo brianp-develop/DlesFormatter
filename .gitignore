@@ -44,3 +44,6 @@ scratchpad/
 
 #Claude local settings
 settings.local.json
+
+# Per-machine config (copy config.json.example to start customizing)
+config.json
