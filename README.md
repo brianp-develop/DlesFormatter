@@ -17,12 +17,15 @@ A Python tool that collates and formats daily puzzle results (Wordle, Framed, Qu
 
 - **Framed** - Movie frame guessing game
 - **Framed One Frame Challenge** - Single frame variant
+- **Framed Title Shot Challenge** - Title-shot variant (single condensed line)
 - **Quolture** - Movie/TV quote trivia
 - **Wordle** - Daily word puzzle
 - **Connections** - NYT word grouping puzzle
 - **Strands** - NYT word-finding puzzle
 - **Waffle** - Daily word grid puzzle with swappable letters
+- **Numble** - Number-equation variant of Waffle (7x7 grid)
 - **Pips** - 3-part puzzle (Easy 🟢, Medium 🟡, Hard 🔴) - captured separately, combined in output
+- **Word Bunny** - Word-ladder puzzle from wordbunny.app
 
 ## Installation
 
@@ -192,12 +195,15 @@ Edit `config.json` to customize puzzle ordering:
   "puzzle_order": [
     "framed_regular",
     "framed_oneframe",
+    "framed_titleshot",
     "quolture",
     "wordle",
     "connections",
     "strands",
     "pips",
-    "waffle"
+    "waffle",
+    "numble",
+    "word_bunny"
   ]
 }
 ```

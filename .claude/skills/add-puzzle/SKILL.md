@@ -161,7 +161,16 @@ Recommended additional tests:
 
 Run `python tests/test_formatter.py` and verify ALL tests pass (existing + new). Fix any failures before proceeding.
 
-### Step 8: Stage Files
+### Step 8: Update Documentation
+
+Update the user-facing documentation so the new puzzle is discoverable:
+
+- **`README.md`**: Add a bullet for the new puzzle in the **Supported Puzzles** list, and add the puzzle identifier to the example `config.json` snippet (preserve the order from the actual `config.json`).
+- **`docs/EXAMPLES.md`** (if it exists): Add a short input/output example for the new puzzle, matching the style of existing entries.
+
+Keep entries terse — one line in the supported list, mirroring existing bullets. Do not invent marketing copy.
+
+### Step 9: Stage Files
 
 Stage all modified and new files with `git add`:
 - `puzzle_formatters/<puzzle_name>.py` (new)
@@ -169,10 +178,12 @@ Stage all modified and new files with `git add`:
 - `config.json` (modified)
 - `formatter.py` (modified)
 - `tests/test_formatter.py` (modified)
+- `README.md` (modified)
+- `docs/EXAMPLES.md` (modified, if updated)
 
 Do NOT commit - the user wants to test manually first.
 
-### Step 9: Summary
+### Step 10: Summary
 
 Report:
 - New formatter class and file path
@@ -189,6 +200,6 @@ Report:
 - Detection patterns must be SPECIFIC - avoid broad patterns that could match other puzzles
 - Always test that existing tests still pass after changes
 - The `puzzle_name` in the class MUST match the identifier in `config.json`
-- Do NOT update documentation files (README, EXAMPLES, ADDING_PUZZLES) unless the user asks
+- Update `README.md` (and `docs/EXAMPLES.md` if it exists) per Step 8; do NOT touch `docs/ADDING_PUZZLES.md` or `docs/ARCHITECTURE.md` unless the user asks
 
 $ARGUMENTS
