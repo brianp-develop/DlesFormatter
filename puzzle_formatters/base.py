@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, absolute_import, division
-
 """
 Base class for puzzle formatters.
 
 All puzzle formatters must inherit from BasePuzzleFormatter and implement
 the required methods for detection, parsing, and formatting.
 """
+
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 from abc import ABCMeta, abstractmethod
 import re

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, absolute_import, division
-
 """
 Formatter for Waffle puzzle results.
 
 Waffle is a daily word puzzle game featuring a 5x5 grid of letters.
 Players rearrange letters to form valid words horizontally and vertically.
 """
+
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 import re
 from .base import BasePuzzleFormatter
@@ -44,7 +44,9 @@ class WaffleFormatter(BasePuzzleFormatter):
             return None
 
         # Extract 5x5 emoji grid (exactly 5 lines)
-        waffle_emoji_pattern = r'^[🟩⬜⭐]{5}$'
+        # Alternation rather than [..] character class so the pattern works
+        # on narrow Py2.7 builds where supplementary-plane emoji are surrogate pairs.
+        waffle_emoji_pattern = r'^(?:🟩|⬜|⭐){5}$'
         grid_lines = [line for line in lines if line and re.match(waffle_emoji_pattern, line)]
 
         if len(grid_lines) != 5:

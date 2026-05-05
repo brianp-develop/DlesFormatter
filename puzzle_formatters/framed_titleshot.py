@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, absolute_import, division
-
 """
 Formatter for Framed - Title Shot Challenge puzzle.
 
 Title Shot is a Framed variant where players guess the movie from a single
 representative shot. Results are condensed to a single line: title + emoji grid.
 """
+
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 import re
 from .base import BasePuzzleFormatter

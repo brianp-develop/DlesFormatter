@@ -1,0 +1,20 @@
+name: Python 2.7 compatibility
+
+on:
+  push:
+    branches: [python2.7-compat]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run test suite under python:2.7-slim
+        run: |
+          docker run --rm -v "$PWD":/work -w /work python:2.7-slim bash -c '
+            set -e
+            pip install -r requirements.txt
+            python tests/test_formatter.py
+          '

@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, absolute_import, division
-
 """
 Puzzle Results Formatter
 
@@ -19,6 +17,8 @@ Features:
 
 Author: Created for daily puzzle result sharing
 """
+
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 import io
 import json

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, absolute_import, division
-
 """
 Formatter for Quolture puzzle.
 
 Quolture tests knowledge of movie and TV show quotes.
 Results are condensed to a single line with all components separated by spaces.
 """
+
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 import re
 from .base import BasePuzzleFormatter

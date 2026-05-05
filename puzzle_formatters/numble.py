@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, absolute_import, division
-
 """
 Formatter for Numble puzzle results.
 
 Numble is the number variant of Waffle from wafflegame.net, featuring a 7x7 grid.
 Players rearrange numbers to form valid equations horizontally and vertically.
 """
+
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 import re
 from .base import BasePuzzleFormatter
@@ -68,7 +68,9 @@ class NumbleFormatter(BasePuzzleFormatter):
             return None
 
         # Extract 7x7 emoji grid (exactly 7 lines)
-        numble_emoji_pattern = r'^[🟩⬜⭐]{7}$'
+        # Alternation rather than [..] character class so the pattern works
+        # on narrow Py2.7 builds where supplementary-plane emoji are surrogate pairs.
+        numble_emoji_pattern = r'^(?:🟩|⬜|⭐){7}$'
         grid_lines = [line for line in lines if line and re.match(numble_emoji_pattern, line)]
 
         if len(grid_lines) != 7:

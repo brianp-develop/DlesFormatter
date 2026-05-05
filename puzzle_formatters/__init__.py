@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, absolute_import, division
-
 """
 Puzzle Formatters Package
 
 Auto-discovers and registers all puzzle formatter classes.
 This registry pattern allows adding new puzzles without modifying core logic.
 """
+
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 from .base import BasePuzzleFormatter
 from .connections import ConnectionsFormatter

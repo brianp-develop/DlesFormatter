@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, absolute_import, division
-
 """
 Formatter for Wordle puzzle.
 
 Wordle is a word-guessing game with a 5-letter word.
 Results keep the multi-line grid structure showing each guess.
 """
+
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 import re
 from .base import BasePuzzleFormatter

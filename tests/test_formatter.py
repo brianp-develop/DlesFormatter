@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, absolute_import, division
-
 """
 Unit tests for puzzle formatters.
 
 Tests individual formatters and the full processing pipeline.
 Run with: python -m pytest tests/test_formatter.py
 """
+
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 import os
 import sys

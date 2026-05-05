@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, absolute_import, division
-
 """
 Formatter for NYT Strands puzzle results.
 
 Strands is a word-finding game where players discover themed words.
 Results show a multi-line emoji grid that gets collapsed to a single line.
 """
+
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 import re
 from .base import BasePuzzleFormatter
@@ -92,7 +92,9 @@ class StrandsFormatter(BasePuzzleFormatter):
                 break
 
         # Extract emoji lines (contain Strands emoji: 🔵 🟡 💡)
-        strands_emoji_pattern = r'^[🔵🟡💡]+$'
+        # Alternation rather than [..] character class so the pattern works
+        # on narrow Py2.7 builds where supplementary-plane emoji are surrogate pairs.
+        strands_emoji_pattern = r'^(?:🔵|🟡|💡)+$'
         emoji_lines = []
         for line in lines:
             if re.match(strands_emoji_pattern, line):

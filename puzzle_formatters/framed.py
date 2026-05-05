@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, absolute_import, division
-
 """
 Formatter for Framed and Framed One Frame puzzles.
 
 Framed shows a movie through increasingly revealing frames.
 Results are condensed to a single line: title + emoji grid.
 """
+
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 import re
 from .base import BasePuzzleFormatter

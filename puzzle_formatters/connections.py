@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, absolute_import, division
-
 """
 Formatter for NYT Connections puzzle results.
 
 Connections is a word grouping game that displays results as colored emoji grids.
 """
+
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 import re
 from .base import BasePuzzleFormatter
@@ -61,7 +61,9 @@ class ConnectionsFormatter(BasePuzzleFormatter):
                 break
 
         # Extract grid lines (lines with Connections emojis)
-        connections_emoji_pattern = r'^[🟦🟪🟩🟨]+$'
+        # Alternation rather than [..] character class so the pattern works
+        # on narrow Py2.7 builds where supplementary-plane emoji are surrogate pairs.
+        connections_emoji_pattern = r'^(?:🟦|🟪|🟩|🟨)+$'
         grid_lines = []
         for line in lines:
             if re.match(connections_emoji_pattern, line):

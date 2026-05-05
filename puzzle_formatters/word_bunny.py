@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, absolute_import, division
-
 """
 Formatter for Word Bunny puzzle results.
 
 Word Bunny is a word ladder puzzle from wordbunny.app where players transform
 one word into another through a chain of single-letter changes.
 """
+
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 import re
 from .base import BasePuzzleFormatter
