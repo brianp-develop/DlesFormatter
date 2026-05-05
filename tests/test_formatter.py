@@ -15,6 +15,15 @@ if sys.platform == 'win32':
 # Add parent directory to path to import puzzle_formatters
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+# Tests assert the recommended layout (blank-line markers in config.json).
+# config.json is gitignored — bootstrap it from .example on fresh clones so
+# the suite stays runnable without manual setup.
+import shutil
+_CONFIG_PATH = Path(__file__).parent.parent / "config.json"
+_EXAMPLE_PATH = Path(__file__).parent.parent / "config.json.example"
+if not _CONFIG_PATH.exists() and _EXAMPLE_PATH.exists():
+    shutil.copy(str(_EXAMPLE_PATH), str(_CONFIG_PATH))
+
 from puzzle_formatters import (
     ConnectionsFormatter,
     FramedFormatter,
