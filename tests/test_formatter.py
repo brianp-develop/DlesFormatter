@@ -25,6 +25,7 @@ from puzzle_formatters import (
     QuoltureFormatter,
     StrandsFormatter,
     WaffleFormatter,
+    WordBunnyFormatter,
     WordleFormatter,
     get_formatter_for_text
 )
@@ -202,6 +203,27 @@ NUMBLE_MANY_BLANKS = """#numble11 1/5
 
 
 wafflegame.net/numberwaffle"""
+
+
+WORD_BUNNY_INPUT = """Word Bunny in 15 hops!
+5 MAY '26:
+WORST → BAD → GOOD → BEST
+🐰🐰🐰🐰🐰🐰|🐰🐰🐰|🐰🐰🐰🐰🐰🐰
+https://wordbunny.app/share"""
+
+WORD_BUNNY_MANY_BLANKS = """Word Bunny in 8 hops!
+
+
+6 MAY '26:
+
+
+CAT → COT → DOT → DOG
+
+
+🐰🐰🐰|🐰🐰|🐰🐰🐰
+
+
+https://wordbunny.app/share"""
 
 
 class TestFramedFormatter:
@@ -875,6 +897,115 @@ wafflegame.net/numberwaffle"""
         assert '\n\n#numble' in output
 
 
+class TestWordBunnyFormatter:
+    """Tests for WordBunnyFormatter."""
+
+    def test_can_parse_valid_input(self):
+        """Should detect valid Word Bunny puzzle."""
+        formatter = WordBunnyFormatter()
+        assert formatter.can_parse(WORD_BUNNY_INPUT) is True
+
+    def test_can_parse_with_extra_blanks(self):
+        """Should detect Word Bunny with excessive blank lines."""
+        formatter = WordBunnyFormatter()
+        assert formatter.can_parse(WORD_BUNNY_MANY_BLANKS) is True
+
+    def test_can_parse_rejects_unrelated(self):
+        """Should NOT detect non-Word-Bunny text."""
+        formatter = WordBunnyFormatter()
+        assert formatter.can_parse("Wordle 1,692 4/6") is False
+
+    def test_parse_extracts_components(self):
+        """Should extract title, date, word_chain, and bunny_grid."""
+        formatter = WordBunnyFormatter()
+        result = formatter.parse(WORD_BUNNY_INPUT)
+
+        assert result is not None
+        assert result['title'] == 'Word Bunny in 15 hops!'
+        assert result['date'] == "5 MAY '26:"
+        assert result['word_chain'] == 'WORST → BAD → GOOD → BEST'
+        assert result['bunny_grid'] == '\U0001F430\U0001F430\U0001F430\U0001F430\U0001F430\U0001F430|\U0001F430\U0001F430\U0001F430|\U0001F430\U0001F430\U0001F430\U0001F430\U0001F430\U0001F430'
+
+    def test_parse_rejects_missing_chain(self):
+        """Should return None when word chain doesn't have 3 arrows."""
+        formatter = WordBunnyFormatter()
+        bad_input = """Word Bunny in 5 hops!
+5 MAY '26:
+WORST → BEST
+\U0001F430\U0001F430|\U0001F430|\U0001F430\U0001F430
+https://wordbunny.app/share"""
+        assert formatter.parse(bad_input) is None
+
+    def test_parse_rejects_missing_grid(self):
+        """Should return None when bunny grid doesn't have 2 pipes."""
+        formatter = WordBunnyFormatter()
+        bad_input = """Word Bunny in 5 hops!
+5 MAY '26:
+WORST → BAD → GOOD → BEST
+\U0001F430\U0001F430\U0001F430|\U0001F430\U0001F430\U0001F430
+https://wordbunny.app/share"""
+        assert formatter.parse(bad_input) is None
+
+    def test_format_output(self):
+        """Should format as multi-line: title + word chain + bunny grid."""
+        formatter = WordBunnyFormatter()
+        data = formatter.parse(WORD_BUNNY_INPUT)
+        output = formatter.format(data)
+
+        lines = output.split('\n')
+        assert len(lines) == 3
+        assert lines[0] == 'Word Bunny in 15 hops!'
+        assert lines[1] == 'WORST → BAD → GOOD → BEST'
+        assert '|' in lines[2]
+        assert lines[2].count('|') == 2
+
+    def test_format_strips_date(self):
+        """Should not include the date line in formatted output."""
+        formatter = WordBunnyFormatter()
+        data = formatter.parse(WORD_BUNNY_INPUT)
+        output = formatter.format(data)
+
+        assert "5 MAY '26" not in output
+
+    def test_format_removes_urls(self):
+        """Should not include URLs in formatted output."""
+        formatter = WordBunnyFormatter()
+        data = formatter.parse(WORD_BUNNY_INPUT)
+        output = formatter.format(data)
+
+        assert 'wordbunny.app' not in output
+        assert 'http' not in output
+
+    def test_format_handles_extra_blanks(self):
+        """Should produce clean output even from messy input."""
+        formatter = WordBunnyFormatter()
+        data = formatter.parse(WORD_BUNNY_MANY_BLANKS)
+        output = formatter.format(data)
+
+        assert '\n\n' not in output
+        lines = output.split('\n')
+        assert len(lines) == 3
+        assert lines[0] == 'Word Bunny in 8 hops!'
+        assert lines[1] == 'CAT → COT → DOT → DOG'
+
+    def test_formatter_registry(self):
+        """Should be registered and detectable by registry."""
+        formatter = get_formatter_for_text(WORD_BUNNY_INPUT)
+        assert isinstance(formatter, WordBunnyFormatter)
+
+    def test_format_multiline_with_separator(self):
+        """Should add blank line separator before Word Bunny in multi-puzzle output."""
+        from formatter import process_puzzle_results
+
+        mixed_input = f"""{FRAMED_INPUT}
+
+{WORD_BUNNY_INPUT}"""
+
+        output = process_puzzle_results(mixed_input)
+
+        assert '\n\nWord Bunny' in output
+
+
 class TestFormatterRegistry:
     """Tests for formatter auto-detection."""
 
@@ -1135,6 +1266,40 @@ class TestFullPipeline:
         assert '\n\n#numble' in output  # Blank line before Numble
 
 
+    def test_word_bunny_in_mixed_input(self):
+        """Should detect and format Word Bunny last in mixed input."""
+        from formatter import detect_and_parse_puzzles, sort_puzzles_by_config, format_output, load_config
+
+        mixed_input = f"""{WORDLE_INPUT}
+
+{NUMBLE_INPUT}
+
+{WORD_BUNNY_INPUT}"""
+
+        config = load_config()
+        puzzles = detect_and_parse_puzzles(mixed_input)
+
+        puzzle_names = [p['puzzle_name'] for p in puzzles]
+        assert 'word_bunny' in puzzle_names
+        assert 'wordle' in puzzle_names
+        assert 'numble' in puzzle_names
+
+        # Word Bunny should come after Numble (it's last in config)
+        sorted_puzzles = sort_puzzles_by_config(puzzles, config['puzzle_order'])
+        sorted_names = [p['puzzle_name'] for p in sorted_puzzles]
+        word_bunny_idx = sorted_names.index('word_bunny')
+        numble_idx = sorted_names.index('numble')
+        assert word_bunny_idx > numble_idx
+
+        # Verify formatted output
+        output = format_output(sorted_puzzles)
+        assert 'Word Bunny in 15 hops!' in output
+        assert 'WORST → BAD → GOOD → BEST' in output
+        assert "5 MAY '26" not in output  # Date stripped
+        assert 'wordbunny.app' not in output  # URL stripped
+        assert '\n\nWord Bunny' in output  # Blank line before Word Bunny
+
+
 class TestDeduplication:
     """Tests for duplicate puzzle detection and removal."""
 
@@ -1320,6 +1485,7 @@ if __name__ == '__main__':
         TestPipsAggregation,
         TestWaffleFormatter,
         TestNumbleFormatter,
+        TestWordBunnyFormatter,
         TestDeduplication,
         TestFormatterRegistry,
         TestEdgeCases,

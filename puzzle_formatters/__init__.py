@@ -14,6 +14,7 @@ from .quolture import QuoltureFormatter
 from .strands import StrandsFormatter
 from .numble import NumbleFormatter
 from .waffle import WaffleFormatter
+from .word_bunny import WordBunnyFormatter
 from .wordle import WordleFormatter
 
 # Registry of all available formatters
@@ -28,6 +29,7 @@ ALL_FORMATTERS = [
     StrandsFormatter(),
     NumbleFormatter(),
     WaffleFormatter(),
+    WordBunnyFormatter(),
     WordleFormatter(),
 ]
 
@@ -77,6 +79,7 @@ __all__ = [
     'StrandsFormatter',
     'NumbleFormatter',
     'WaffleFormatter',
+    'WordBunnyFormatter',
     'WordleFormatter',
     'ALL_FORMATTERS',
     'get_formatter_for_text',

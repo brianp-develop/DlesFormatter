@@ -89,6 +89,7 @@ def split_into_puzzle_blocks(text: str) -> List[str]:
         r'(?=^Pips\s)',
         r'(?=^#waffle\d+)',
         r'(?=^#numble\d+)',
+        r'(?=^Word Bunny\s)',
     ]
 
     text_with_delimiters = text
@@ -235,6 +236,10 @@ def _get_puzzle_identity(puzzle: Dict) -> tuple:
     elif puzzle_name == 'numble':
         # Direct access to puzzle_number
         return (puzzle_name, data.get('puzzle_number', ''))
+
+    elif puzzle_name == 'word_bunny':
+        # Word Bunny has no puzzle number; use the date line as identity
+        return (puzzle_name, data.get('date', ''))
 
     elif puzzle_name == 'quolture':
         # Extract from first line: '"Quolture" 1692'
