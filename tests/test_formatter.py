@@ -19,6 +19,7 @@ from puzzle_formatters import (
     ConnectionsFormatter,
     FramedFormatter,
     FramedOneFrameFormatter,
+    FramedTitleShotFormatter,
     NumbleFormatter,
     PipsFormatter,
     QuoltureFormatter,
@@ -39,6 +40,11 @@ FRAMED_ONEFRAME_INPUT = """Framed - One Frame Challenge #1427
 🎥 🟥
 
 https://framed.wtf"""
+
+FRAMED_TITLESHOT_INPUT = """Framed - Title Shot Challenge #335
+🎥 🟥 🟥 🟩 ⬛ ⬛ ⬛
+
+https://framed.wtf/titleshot"""
 
 QUOLTURE_INPUT = """"Quolture"  1447  ⭐️3
 
@@ -255,6 +261,73 @@ class TestFramedOneFrameFormatter:
         assert '\n' not in output
         assert 'One Frame Challenge' in output
         assert 'https' not in output
+
+
+class TestFramedTitleShotFormatter:
+    """Tests for FramedTitleShotFormatter."""
+
+    def test_can_parse_valid_input(self):
+        """Should detect valid Title Shot puzzle."""
+        formatter = FramedTitleShotFormatter()
+        assert formatter.can_parse(FRAMED_TITLESHOT_INPUT) is True
+
+    def test_can_parse_rejects_regular_framed(self):
+        """Should NOT detect regular Framed as Title Shot."""
+        formatter = FramedTitleShotFormatter()
+        assert formatter.can_parse(FRAMED_INPUT) is False
+
+    def test_can_parse_rejects_oneframe(self):
+        """Should NOT detect One Frame as Title Shot."""
+        formatter = FramedTitleShotFormatter()
+        assert formatter.can_parse(FRAMED_ONEFRAME_INPUT) is False
+
+    def test_parse_extracts_components(self):
+        """Should extract title, emoji grid, and puzzle number."""
+        formatter = FramedTitleShotFormatter()
+        result = formatter.parse(FRAMED_TITLESHOT_INPUT)
+
+        assert result is not None
+        assert result['title'] == 'Framed - Title Shot Challenge #335'
+        assert result['puzzle_number'] == '335'
+        assert '🎥' in result['emoji_grid']
+        assert '🟩' in result['emoji_grid']
+
+    def test_format_output(self):
+        """Should format as single line: title + grid (no space)."""
+        formatter = FramedTitleShotFormatter()
+        data = formatter.parse(FRAMED_TITLESHOT_INPUT)
+        output = formatter.format(data)
+
+        assert output == 'Framed - Title Shot Challenge #335🎥 🟥 🟥 🟩 ⬛ ⬛ ⬛'
+
+    def test_format_removes_urls(self):
+        """Should strip URLs from output."""
+        formatter = FramedTitleShotFormatter()
+        data = formatter.parse(FRAMED_TITLESHOT_INPUT)
+        output = formatter.format(data)
+
+        assert '\n' not in output
+        assert 'https' not in output
+        assert 'framed.wtf' not in output
+
+    def test_can_parse_with_extra_blanks(self):
+        """Should handle input with extra blank lines."""
+        input_with_blanks = """Framed - Title Shot Challenge #335
+
+
+🎥 🟥 🟥 🟩 ⬛ ⬛ ⬛
+
+
+https://framed.wtf/titleshot"""
+        formatter = FramedTitleShotFormatter()
+        assert formatter.can_parse(input_with_blanks) is True
+        data = formatter.parse(input_with_blanks)
+        assert formatter.format(data) == 'Framed - Title Shot Challenge #335🎥 🟥 🟥 🟩 ⬛ ⬛ ⬛'
+
+    def test_formatter_registry(self):
+        """Should be registered and detectable by registry."""
+        formatter = get_formatter_for_text(FRAMED_TITLESHOT_INPUT)
+        assert isinstance(formatter, FramedTitleShotFormatter)
 
 
 class TestQuoltureFormatter:
@@ -815,6 +888,11 @@ class TestFormatterRegistry:
         formatter = get_formatter_for_text(FRAMED_ONEFRAME_INPUT)
         assert isinstance(formatter, FramedOneFrameFormatter)
 
+    def test_get_formatter_for_titleshot(self):
+        """Should return FramedTitleShotFormatter for Title Shot input."""
+        formatter = get_formatter_for_text(FRAMED_TITLESHOT_INPUT)
+        assert isinstance(formatter, FramedTitleShotFormatter)
+
     def test_get_formatter_for_quolture(self):
         """Should return QuoltureFormatter for Quolture input."""
         formatter = get_formatter_for_text(QUOLTURE_INPUT)
@@ -935,6 +1013,25 @@ class TestFullPipeline:
         # Both Wordle and Connections should have blank lines before them
         assert '\n\nWordle' in output_text
         assert '\n\nConnections' in output_text
+
+    def test_titleshot_in_mixed_framed_input(self):
+        """Should handle all three Framed variants together in correct order."""
+        from formatter import process_puzzle_results
+
+        mixed_input = f"""{FRAMED_TITLESHOT_INPUT}
+
+{FRAMED_INPUT}
+
+{FRAMED_ONEFRAME_INPUT}"""
+
+        output = process_puzzle_results(mixed_input)
+        lines = output.split('\n')
+
+        # All three Framed variants should appear, ordered per config:
+        # framed_regular, framed_oneframe, framed_titleshot
+        assert lines[0] == 'Framed #1427🎥 🟥 🟥 🟥 🟥 🟥 🟥'
+        assert lines[1] == 'Framed - One Frame Challenge #1427🎥 🟥'
+        assert lines[2] == 'Framed - Title Shot Challenge #335🎥 🟥 🟥 🟩 ⬛ ⬛ ⬛'
 
     def test_strands_in_mixed_input(self):
         """Should detect and format Strands among other puzzles."""
@@ -1214,6 +1311,7 @@ if __name__ == '__main__':
     test_classes = [
         TestFramedFormatter,
         TestFramedOneFrameFormatter,
+        TestFramedTitleShotFormatter,
         TestQuoltureFormatter,
         TestWordleFormatter,
         TestConnectionsFormatter,

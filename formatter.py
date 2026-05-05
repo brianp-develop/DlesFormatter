@@ -216,6 +216,10 @@ def _get_puzzle_identity(puzzle: Dict) -> tuple:
             return (puzzle_name, match.group(1))
         return (puzzle_name, hash(data.get('raw_text', '')))
 
+    elif puzzle_name == 'framed_titleshot':
+        # Direct access to puzzle_number
+        return (puzzle_name, data.get('puzzle_number', ''))
+
     elif puzzle_name == 'connections':
         # Direct access to puzzle_number
         return (puzzle_name, data.get('puzzle_number', ''))
