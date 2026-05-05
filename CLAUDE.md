@@ -183,11 +183,42 @@ config.json.example      # Recommended layout, committed
 tests/test_formatter.py  # 103 tests (unit + integration)
 ```
 
+## Branch Mirror Policy
+
+A `python2.7-compat` branch exists as a courtesy backport for users stuck on Python 2.7. **Every change committed to `master` must be mirrored to `python2.7-compat` before the work is considered done.** Otherwise the branches drift and catch-up later gets expensive.
+
+### Workflow (inline, not subagent)
+
+After each `master` commit:
+1. `git checkout python2.7-compat`
+2. `git cherry-pick <master-sha>`
+3. **If conflicts:** keep the Py2.7 branch's syntax (no f-strings → use `.format()`; no type hints; `os.path` not `pathlib`; `io.open(..., encoding=...)` not `open(..., encoding=...)`; `ABCMeta(str('ABC'), ...)` not `abc.ABC`) but apply the new logic from master. The conversion gotchas memory file (see `MEMORY.md`) covers the patterns.
+4. Run the Py2.7 test suite — all tests must pass:
+   ```powershell
+   & "$HOME\.pyenv\pyenv-win\versions\2.7.18\python.exe" tests\test_formatter.py
+   ```
+   If pyenv-win isn't set up on the current machine, see the verification section of the conversion gotchas memory file.
+5. `git push`
+6. Switch back to `master` and report both commit SHAs to the user.
+
+### Why inline rather than spawning a subagent
+
+The cherry-pick + Py2.7 test + push cycle is ~30 seconds total on this codebase. Subagent spawn overhead is larger than the work itself, and inline lets you react immediately to conflicts or test failures. A subagent would also need the conversion-gotchas knowledge re-injected each time.
+
+### When to skip the mirror
+
+- The change is explicitly master-only (e.g., dropping Py2.7 support entirely)
+- The change touches files that don't exist on the Py2.7 branch
+- The user says "master only"
+
+Otherwise mirror by default. If unsure, ask before committing on master.
+
 ## Testing Requirements
 
 **Before committing**:
-- All 67 tests must pass
+- All 103 tests must pass on Py3
 - Run: `python tests/test_formatter.py`
+- Per the Branch Mirror Policy above, all 103 tests must also pass on Py2.7 after mirroring to `python2.7-compat`
 
 **When adding new puzzles**:
 - Add unit tests for formatter (can_parse, parse, format)
