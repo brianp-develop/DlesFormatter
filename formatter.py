@@ -450,6 +450,36 @@ def process_puzzle_results(input_text):
     return output
 
 
+def _format_and_copy(all_puzzles_text):
+    """Format accumulated puzzles, print results, copy to clipboard.
+
+    Preserves all_puzzles_text so the user can keep adding puzzles after
+    formatting (incremental day-long capture).
+    """
+    print("\n")
+
+    if not all_puzzles_text:
+        print("No puzzles captured yet.")
+        print()
+        return
+
+    combined_input = '\n\n'.join(all_puzzles_text)
+    output = process_puzzle_results(combined_input)
+
+    print("=== Formatted Results ===")
+    print(output)
+    print()
+
+    try:
+        pyperclip.copy(output)
+        print("✓ Results copied to clipboard!")
+    except Exception as e:
+        print("Note: Could not copy to clipboard: {}".format(e))
+
+    print("\nResults ready to paste! Continue adding puzzles or type 'quit' to exit.")
+    print()
+
+
 def interactive_mode():
     """
     Interactive mode: Read puzzles from clipboard one at a time.
@@ -458,14 +488,18 @@ def interactive_mode():
     1. Complete a puzzle and copy the result (Ctrl+C)
     2. Press Enter in this terminal to capture it
     3. Repeat for more puzzles throughout the day
-    4. Press Ctrl+C to format and copy all captured puzzles
+    4. Type 'done' to format and copy all captured puzzles
     5. Continue adding more puzzles or type 'quit' to exit
+
+    Note: 'done' is the trigger on the Py2.7 branch; Ctrl+C is treated as
+    a hard exit because Py2.7 + Windows can deliver a deferred SIGINT into
+    the recovery print and crash. Master also accepts Ctrl+C.
     """
     print("=== Puzzle Results Formatter ===")
     print("1. Complete a puzzle and copy the result (Ctrl+C)")
     print("2. Press Enter here to capture it")
     print("3. Repeat for more puzzles")
-    print("4. Press Ctrl+C to format all puzzles and copy to clipboard")
+    print("4. Type 'done' to format all puzzles and copy to clipboard")
     print("5. Continue adding puzzles or type 'quit' to exit")
     print()
 
@@ -477,65 +511,42 @@ def interactive_mode():
     except NameError:
         prompt_input = input  # Py3
 
-    while True:  # Outer loop - runs until quit
+    while True:  # Loop until 'quit' or hard interrupt
         try:
-            while True:  # Inner loop - captures puzzles until Ctrl+C
-                # Wait for Enter keypress or quit command
-                user_input = prompt_input("Press Enter to capture (or type 'quit' to exit): ").strip().lower()
-
-                # Check for quit command
-                if user_input == 'quit':
-                    print("Exiting...")
-                    return
-
-                # Read entire clipboard content
-                clipboard_content = pyperclip.paste()
-
-                # Check if clipboard is empty
-                if not clipboard_content.strip():
-                    print("  ⚠ Clipboard is empty - copy a puzzle result first")
-                    print()
-                    continue
-
-                # Try to identify what puzzle this is
-                formatter = get_formatter_for_text(clipboard_content)
-
-                if formatter:
-                    print("  ✓ Captured {}".format(formatter.puzzle_name.replace('_', ' ').title()))
-                    all_puzzles_text.append(clipboard_content)
-                else:
-                    print("  ⚠ Unrecognized puzzle format (will try to process anyway)")
-                    all_puzzles_text.append(clipboard_content)
-
-                print()
-
+            user_input = prompt_input("Press Enter to capture (or 'done' / 'quit'): ").strip().lower()
         except (EOFError, KeyboardInterrupt):
-            print("\n")
+            # On Py2.7 we don't try to recover from Ctrl+C — just exit.
+            print("")
+            return
 
-            if not all_puzzles_text:
-                print("No puzzles captured yet.")
-                print()
-                continue  # Return to outer loop instead of exiting
+        if user_input == 'quit':
+            print("Exiting...")
+            return
 
-            # Process all captured puzzles
-            # Join with double newline to separate puzzles
-            combined_input = '\n\n'.join(all_puzzles_text)
-            output = process_puzzle_results(combined_input)
+        if user_input == 'done':
+            _format_and_copy(all_puzzles_text)
+            continue  # keep accumulating
 
-            print("=== Formatted Results ===")
-            print(output)
+        # Read entire clipboard content
+        clipboard_content = pyperclip.paste()
+
+        # Check if clipboard is empty
+        if not clipboard_content.strip():
+            print("  ⚠ Clipboard is empty - copy a puzzle result first")
             print()
+            continue
 
-            # Copy result to clipboard
-            try:
-                pyperclip.copy(output)
-                print("✓ Results copied to clipboard!")
-            except Exception as e:
-                print("Note: Could not copy to clipboard: {}".format(e))
+        # Try to identify what puzzle this is
+        formatter = get_formatter_for_text(clipboard_content)
 
-            print("\nResults ready to paste! Continue adding puzzles or type 'quit' to exit.")
-            print()
-            # Continue to outer loop - don't exit!
+        if formatter:
+            print("  ✓ Captured {}".format(formatter.puzzle_name.replace('_', ' ').title()))
+            all_puzzles_text.append(clipboard_content)
+        else:
+            print("  ⚠ Unrecognized puzzle format (will try to process anyway)")
+            all_puzzles_text.append(clipboard_content)
+
+        print()
 
 
 def main():
