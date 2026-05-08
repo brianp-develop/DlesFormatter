@@ -26,6 +26,8 @@ A Python tool that collates and formats daily puzzle results (Wordle, Framed, Qu
 - **Numble** - Number-equation variant of Waffle (7x7 grid)
 - **Pips** - 3-part puzzle (Easy 🟢, Medium 🟡, Hard 🔴) - captured separately, combined in output
 - **Word Bunny** - Word-ladder puzzle from wordbunny.app
+- **Cine2Nerdle** - Daily film-trivia grid puzzle from cinenerdle2.app
+- **Cine2Nerdle Reversal** - Reversal variant of Cine2Nerdle (R-prefixed puzzle number)
 
 ## Installation
 
@@ -218,7 +220,10 @@ cp config.json.example config.json
     "---",
     "numble",
     "---",
-    "word_bunny"
+    "word_bunny",
+    "---",
+    "cine2nerdle_regular",
+    "cine2nerdle_reversal"
   ]
 }
 ```

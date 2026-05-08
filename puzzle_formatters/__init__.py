@@ -6,6 +6,8 @@ This registry pattern allows adding new puzzles without modifying core logic.
 """
 
 from .base import BasePuzzleFormatter
+from .cine2nerdle_regular import Cine2NerdleRegularFormatter
+from .cine2nerdle_reversal import Cine2NerdleReversalFormatter
 from .connections import ConnectionsFormatter
 from .framed import FramedFormatter, FramedOneFrameFormatter
 from .framed_titleshot import FramedTitleShotFormatter
@@ -20,6 +22,8 @@ from .wordle import WordleFormatter
 # Registry of all available formatters
 # New formatters are automatically included when imported above
 ALL_FORMATTERS = [
+    Cine2NerdleRegularFormatter(),
+    Cine2NerdleReversalFormatter(),
     ConnectionsFormatter(),
     FramedFormatter(),
     FramedOneFrameFormatter(),
@@ -70,6 +74,8 @@ def get_formatter_by_name(puzzle_name: str):
 
 __all__ = [
     'BasePuzzleFormatter',
+    'Cine2NerdleRegularFormatter',
+    'Cine2NerdleReversalFormatter',
     'ConnectionsFormatter',
     'FramedFormatter',
     'FramedOneFrameFormatter',

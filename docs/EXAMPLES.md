@@ -244,6 +244,73 @@ Pips #173 Easy 🟢 1:25 | Medium 🟡 5:52 | Hard 🔴 35:28
 
 ---
 
+## Cine2Nerdle
+
+### Input
+```
+Cine2Nerdle #1283
+⬜🟨🟨🟨
+🟨🟨🟨⬜
+🟨🟨🟨⬜
+🟨🟨🟨⬜
+
+
+Swaps Left: 0
+www.cinenerdle2.app
+```
+
+### Output
+```
+Cine2Nerdle #1283
+⬜🟨🟨🟨
+🟨🟨🟨⬜
+🟨🟨🟨⬜
+🟨🟨🟨⬜
+Swaps Left: 0
+```
+
+### Formatting Rules
+- Preserve title line: `Cine2Nerdle #XXXX`
+- Preserve guess-row emoji grid
+- Preserve `Swaps Left: N` line
+- Remove URL (`www.cinenerdle2.app`)
+- Remove blank lines
+- Multi-line output
+
+---
+
+## Cine2Nerdle Reversal
+
+### Input
+```
+Cine2Nerdle #R1112
+🟨🟨⬜🟥
+🟨🟨⬜🟥
+🟨🟨🟨🟥
+🟨🟨⬜🟥
+
+
+Swaps Left: 0
+www.cinenerdle2.app
+```
+
+### Output
+```
+Cine2Nerdle #R1112
+🟨🟨⬜🟥
+🟨🟨⬜🟥
+🟨🟨🟨🟥
+🟨🟨⬜🟥
+Swaps Left: 0
+```
+
+### Formatting Rules
+- Distinguished from regular Cine2Nerdle by the `R`-prefixed puzzle number (`#R1112`)
+- Same shape as the regular variant: title + grid + `Swaps Left: N`
+- Sits immediately after `cine2nerdle_regular` in the output (no blank line between variants)
+
+---
+
 ## Mixed Input Examples
 
 ### Example 1: All Puzzles in Wrong Order
