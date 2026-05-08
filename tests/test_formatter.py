@@ -1518,11 +1518,15 @@ class TestFullPipeline:
             'cine2nerdle_reversal',
         ]
 
-        mixed_input = f"""{CINE2NERDLE_REVERSAL_INPUT}
+        mixed_input = """{CINE2NERDLE_REVERSAL_INPUT}
 
 {WORD_BUNNY_INPUT}
 
-{CINE2NERDLE_REGULAR_INPUT}"""
+{CINE2NERDLE_REGULAR_INPUT}""".format(
+            CINE2NERDLE_REVERSAL_INPUT=CINE2NERDLE_REVERSAL_INPUT,
+            WORD_BUNNY_INPUT=WORD_BUNNY_INPUT,
+            CINE2NERDLE_REGULAR_INPUT=CINE2NERDLE_REGULAR_INPUT,
+        )
 
         puzzles = detect_and_parse_puzzles(mixed_input)
         puzzle_names = [p['puzzle_name'] for p in puzzles]

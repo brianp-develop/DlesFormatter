@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Formatter for regular Cine2Nerdle puzzle results.
 
@@ -6,8 +7,9 @@ colored cells indicating correctness. The Reversal variant uses an "R"
 prefix on the puzzle number and is handled by a separate formatter.
 """
 
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 import re
-from typing import Optional
 from .base import BasePuzzleFormatter
 
 
@@ -17,13 +19,15 @@ class Cine2NerdleRegularFormatter(BasePuzzleFormatter):
     puzzle_name = "cine2nerdle_regular"
     detection_pattern = r"Cine2Nerdle\s+#\d+"
 
-    GRID_LINE_PATTERN = r'^[⬜🟨🟥🟩⬛🟦🟧🟪]+$'
+    # Alternation rather than [..] character class so the pattern works
+    # on narrow Py2.7 builds where supplementary-plane emoji are surrogate pairs.
+    GRID_LINE_PATTERN = r'^(?:⬜|🟨|🟥|🟩|⬛|🟦|🟧|🟪)+$'
 
-    def can_parse(self, text: str) -> bool:
+    def can_parse(self, text):
         """Check if text contains regular Cine2Nerdle puzzle."""
         return re.search(self.detection_pattern, text) is not None
 
-    def parse(self, text: str) -> Optional[dict]:
+    def parse(self, text):
         """
         Extract Cine2Nerdle puzzle data.
 
@@ -63,7 +67,7 @@ class Cine2NerdleRegularFormatter(BasePuzzleFormatter):
             'raw_text': text
         }
 
-    def format(self, puzzle_data: dict) -> str:
+    def format(self, puzzle_data):
         """
         Format as multi-line: title + grid lines + Swaps Left.
 
