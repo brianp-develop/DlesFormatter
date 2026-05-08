@@ -36,6 +36,8 @@ if not os.path.exists(_CONFIG_PATH) and os.path.exists(_EXAMPLE_PATH):
     shutil.copy(_EXAMPLE_PATH, _CONFIG_PATH)
 
 from puzzle_formatters import (
+    Cine2NerdleRegularFormatter,
+    Cine2NerdleReversalFormatter,
     ConnectionsFormatter,
     FramedFormatter,
     FramedOneFrameFormatter,
@@ -244,6 +246,27 @@ CAT → COT → DOT → DOG
 
 
 https://wordbunny.app/share"""
+
+
+CINE2NERDLE_REGULAR_INPUT = """Cine2Nerdle #1283
+⬜🟨🟨🟨
+🟨🟨🟨⬜
+🟨🟨🟨⬜
+🟨🟨🟨⬜
+
+
+Swaps Left: 0
+www.cinenerdle2.app"""
+
+CINE2NERDLE_REVERSAL_INPUT = """Cine2Nerdle #R1112
+🟨🟨⬜🟥
+🟨🟨⬜🟥
+🟨🟨🟨🟥
+🟨🟨⬜🟥
+
+
+Swaps Left: 0
+www.cinenerdle2.app"""
 
 
 class TestFramedFormatter:
@@ -1026,6 +1049,169 @@ https://wordbunny.app/share"""
         assert '\n\nWord Bunny' in output
 
 
+class TestCine2NerdleRegularFormatter:
+    """Tests for Cine2NerdleRegularFormatter."""
+
+    def test_can_parse_valid_input(self):
+        """Should detect a regular Cine2Nerdle puzzle."""
+        formatter = Cine2NerdleRegularFormatter()
+        assert formatter.can_parse(CINE2NERDLE_REGULAR_INPUT) is True
+
+    def test_can_parse_rejects_reversal(self):
+        """Should NOT detect Reversal Cine2Nerdle as regular."""
+        formatter = Cine2NerdleRegularFormatter()
+        assert formatter.can_parse(CINE2NERDLE_REVERSAL_INPUT) is False
+
+    def test_can_parse_rejects_unrelated(self):
+        """Should NOT detect non-Cine2Nerdle text."""
+        formatter = Cine2NerdleRegularFormatter()
+        assert formatter.can_parse("Wordle 1,692 4/6") is False
+
+    def test_parse_extracts_components(self):
+        """Should extract title, puzzle_number, grid_lines, and swaps_left."""
+        formatter = Cine2NerdleRegularFormatter()
+        result = formatter.parse(CINE2NERDLE_REGULAR_INPUT)
+
+        assert result is not None
+        assert result['title'] == 'Cine2Nerdle #1283'
+        assert result['puzzle_number'] == '1283'
+        assert result['grid_lines'] == [
+            '⬜🟨🟨🟨',
+            '🟨🟨🟨⬜',
+            '🟨🟨🟨⬜',
+            '🟨🟨🟨⬜',
+        ]
+        assert result['swaps_left'] == 'Swaps Left: 0'
+
+    def test_parse_rejects_missing_grid(self):
+        """Should return None when no grid rows are present."""
+        formatter = Cine2NerdleRegularFormatter()
+        bad_input = """Cine2Nerdle #1283
+Swaps Left: 0
+www.cinenerdle2.app"""
+        assert formatter.parse(bad_input) is None
+
+    def test_format_output(self):
+        """Should format as multi-line: title + grid + swaps left."""
+        formatter = Cine2NerdleRegularFormatter()
+        data = formatter.parse(CINE2NERDLE_REGULAR_INPUT)
+        output = formatter.format(data)
+
+        expected = (
+            "Cine2Nerdle #1283\n"
+            "⬜🟨🟨🟨\n"
+            "🟨🟨🟨⬜\n"
+            "🟨🟨🟨⬜\n"
+            "🟨🟨🟨⬜\n"
+            "Swaps Left: 0"
+        )
+        assert output == expected
+
+    def test_format_removes_urls(self):
+        """Should not include the cinenerdle2 URL line in formatted output."""
+        formatter = Cine2NerdleRegularFormatter()
+        data = formatter.parse(CINE2NERDLE_REGULAR_INPUT)
+        output = formatter.format(data)
+
+        assert 'cinenerdle2.app' not in output
+        assert 'http' not in output
+        assert 'www.' not in output
+
+    def test_can_parse_with_extra_blanks(self):
+        """Should detect a Cine2Nerdle puzzle with extra blank lines."""
+        messy_input = """Cine2Nerdle #1283
+
+
+⬜🟨🟨🟨
+
+
+🟨🟨🟨⬜
+🟨🟨🟨⬜
+🟨🟨🟨⬜
+
+
+Swaps Left: 0
+
+
+www.cinenerdle2.app"""
+        formatter = Cine2NerdleRegularFormatter()
+        assert formatter.can_parse(messy_input) is True
+        data = formatter.parse(messy_input)
+        assert data is not None
+        assert len(data['grid_lines']) == 4
+
+    def test_formatter_registry(self):
+        """Should be registered and detectable by registry."""
+        formatter = get_formatter_for_text(CINE2NERDLE_REGULAR_INPUT)
+        assert isinstance(formatter, Cine2NerdleRegularFormatter)
+
+
+class TestCine2NerdleReversalFormatter:
+    """Tests for Cine2NerdleReversalFormatter."""
+
+    def test_can_parse_valid_input(self):
+        """Should detect a Reversal Cine2Nerdle puzzle."""
+        formatter = Cine2NerdleReversalFormatter()
+        assert formatter.can_parse(CINE2NERDLE_REVERSAL_INPUT) is True
+
+    def test_can_parse_rejects_regular(self):
+        """Should NOT detect regular Cine2Nerdle as Reversal."""
+        formatter = Cine2NerdleReversalFormatter()
+        assert formatter.can_parse(CINE2NERDLE_REGULAR_INPUT) is False
+
+    def test_can_parse_rejects_unrelated(self):
+        """Should NOT detect non-Cine2Nerdle text."""
+        formatter = Cine2NerdleReversalFormatter()
+        assert formatter.can_parse("Wordle 1,692 4/6") is False
+
+    def test_parse_extracts_components(self):
+        """Should extract title, R-prefixed puzzle_number, grid_lines, and swaps_left."""
+        formatter = Cine2NerdleReversalFormatter()
+        result = formatter.parse(CINE2NERDLE_REVERSAL_INPUT)
+
+        assert result is not None
+        assert result['title'] == 'Cine2Nerdle #R1112'
+        assert result['puzzle_number'] == 'R1112'
+        assert result['grid_lines'] == [
+            '🟨🟨⬜🟥',
+            '🟨🟨⬜🟥',
+            '🟨🟨🟨🟥',
+            '🟨🟨⬜🟥',
+        ]
+        assert result['swaps_left'] == 'Swaps Left: 0'
+
+    def test_format_output(self):
+        """Should format as multi-line: title + grid + swaps left."""
+        formatter = Cine2NerdleReversalFormatter()
+        data = formatter.parse(CINE2NERDLE_REVERSAL_INPUT)
+        output = formatter.format(data)
+
+        expected = (
+            "Cine2Nerdle #R1112\n"
+            "🟨🟨⬜🟥\n"
+            "🟨🟨⬜🟥\n"
+            "🟨🟨🟨🟥\n"
+            "🟨🟨⬜🟥\n"
+            "Swaps Left: 0"
+        )
+        assert output == expected
+
+    def test_format_removes_urls(self):
+        """Should not include the cinenerdle2 URL line in formatted output."""
+        formatter = Cine2NerdleReversalFormatter()
+        data = formatter.parse(CINE2NERDLE_REVERSAL_INPUT)
+        output = formatter.format(data)
+
+        assert 'cinenerdle2.app' not in output
+        assert 'http' not in output
+        assert 'www.' not in output
+
+    def test_formatter_registry(self):
+        """Should be registered and detectable by registry."""
+        formatter = get_formatter_for_text(CINE2NERDLE_REVERSAL_INPUT)
+        assert isinstance(formatter, Cine2NerdleReversalFormatter)
+
+
 class TestFormatterRegistry:
     """Tests for formatter auto-detection."""
 
@@ -1319,6 +1505,49 @@ class TestFullPipeline:
         assert 'wordbunny.app' not in output  # URL stripped
         assert '\n\nWord Bunny' in output  # Blank line before Word Bunny
 
+    def test_cine2nerdle_variants_in_mixed_input(self):
+        """Should detect both Cine2Nerdle variants and place them after word_bunny."""
+        # Use explicit puzzle_order rather than the user's per-machine config.json,
+        # which may not yet include the new identifiers.
+        from formatter import detect_and_parse_puzzles, sort_puzzles_by_config, format_output
+
+        puzzle_order = [
+            'word_bunny',
+            '---',
+            'cine2nerdle_regular',
+            'cine2nerdle_reversal',
+        ]
+
+        mixed_input = f"""{CINE2NERDLE_REVERSAL_INPUT}
+
+{WORD_BUNNY_INPUT}
+
+{CINE2NERDLE_REGULAR_INPUT}"""
+
+        puzzles = detect_and_parse_puzzles(mixed_input)
+        puzzle_names = [p['puzzle_name'] for p in puzzles]
+        assert 'cine2nerdle_regular' in puzzle_names
+        assert 'cine2nerdle_reversal' in puzzle_names
+        assert 'word_bunny' in puzzle_names
+
+        sorted_puzzles = sort_puzzles_by_config(puzzles, puzzle_order)
+        sorted_names = [p['puzzle_name'] for p in sorted_puzzles]
+        # Order: word_bunny -> cine2nerdle_regular -> cine2nerdle_reversal
+        assert sorted_names.index('word_bunny') < sorted_names.index('cine2nerdle_regular')
+        assert sorted_names.index('cine2nerdle_regular') < sorted_names.index('cine2nerdle_reversal')
+
+        output = format_output(sorted_puzzles)
+
+        # Both variants should appear and the URL line should be stripped
+        assert 'Cine2Nerdle #1283' in output
+        assert 'Cine2Nerdle #R1112' in output
+        assert 'cinenerdle2.app' not in output
+
+        # Blank line separator before the cine2nerdle pair (after word_bunny block)
+        assert '\n\nCine2Nerdle #1283' in output
+        # Reversal sits back-to-back after regular (no blank between variants)
+        assert 'Swaps Left: 0\nCine2Nerdle #R1112' in output
+
 
 class TestDeduplication:
     """Tests for duplicate puzzle detection and removal."""
@@ -1506,6 +1735,8 @@ if __name__ == '__main__':
         TestWaffleFormatter,
         TestNumbleFormatter,
         TestWordBunnyFormatter,
+        TestCine2NerdleRegularFormatter,
+        TestCine2NerdleReversalFormatter,
         TestDeduplication,
         TestFormatterRegistry,
         TestEdgeCases,

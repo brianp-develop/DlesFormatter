@@ -130,6 +130,7 @@ def split_into_puzzle_blocks(text):
         r'(?=^#waffle\d+)',
         r'(?=^#numble\d+)',
         r'(?=^Word Bunny\s)',
+        r'(?=^Cine2Nerdle\s+#)',
     ]
 
     text_with_delimiters = text
@@ -280,6 +281,10 @@ def _get_puzzle_identity(puzzle):
     elif puzzle_name == 'word_bunny':
         # Word Bunny has no puzzle number; use the date line as identity
         return (puzzle_name, data.get('date', ''))
+
+    elif puzzle_name in ('cine2nerdle_regular', 'cine2nerdle_reversal'):
+        # Direct access to puzzle_number ('1283' for regular, 'R1112' for reversal)
+        return (puzzle_name, data.get('puzzle_number', ''))
 
     elif puzzle_name == 'quolture':
         # Extract from first line: '"Quolture" 1692'
